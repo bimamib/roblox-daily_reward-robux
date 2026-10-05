@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum MapStatus {
+  PENDING_REVIEW
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  VERIFIED
+  EXPIRED
+}
+
+enum RewardType {
+  ROBUX
+  COIN
+  ITEM
+  XP
+  SPIN
+  OTHER
+}
+
+enum TrackerStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+}
+
+enum DeliveryStatus {
+  NOT_APPLICABLE
+  NOT_SENT
+  PENDING
+  SENT
+}
+
+model Profile {
+  id          String   @id @db.Uuid
+  username    String?  @unique
+  displayName String?
+  avatarUrl   String?
+  role        UserRole @default(USER)
+  timezone    String   @default("Asia/Jakarta")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trackers      AttendanceTracker[]
+  changeLogs    MapChangeLog[]
+  submittedMaps Map[]               @relation("MapSubmitter")
+
+  @@map("profiles")
+}
+
+model Map {
+  id                 String             @id @default(uuid()) @db.Uuid
+  slug               String             @unique
+  name               String
+  description        String?
+  creatorName        String
+  creatorRobloxId    String?
+  robloxPlaceId      String?
+  robloxUrl          String
+  thumbnailUrl       String?
+  durationDays       Int
+  phaseNumber        Int                @default(1)
+  parentMapId        String?            @db.Uuid
+  status             MapStatus          @default(PENDING_REVIEW)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  submittedById      String?            @db.Uuid
+  lastVerifiedAt     DateTime?
+  publishedAt        DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  parentMap  Map?                @relation("MapPhases", fields: [parentMapId], references: [id], onDelete: SetNull)
+  nextPhases Map[]               @relation("MapPhases")
+  submitter  Profile?            @relation("MapSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  rewards    MapReward[]
+  trackers   AttendanceTracker[]
+  changeLogs MapChangeLog[]
+
+  @@index([status])
+  @@index([verificationStatus])
+  @@index([durationDays])
+  @@index([parentMapId])
+  @@map("maps")
+}
+
+model MapReward {
+  id          String     @id @default(uuid()) @db.Uuid
+  mapId       String     @db.Uuid
+  map         Map        @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  rewardType  RewardType
+  amount      Int        @default(0)
+  title       String
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  claims AttendanceClaim[]
+
+  @@unique([mapId, dayNumber])
+  @@index([mapId])
+  @@map("map_rewards")
+}
+
+model AttendanceTracker {
+  id               String        @id @default(uuid()) @db.Uuid
+  userId           String        @db.Uuid
+  user             Profile       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mapId            String        @db.Uuid
+  map              Map           @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  cycleNumber      Int           @default(1)
+  startedAt        DateTime      @default(now())
+  lastAttendanceAt DateTime?
+  completedAt      DateTime?
+  status           TrackerStatus @default(ACTIVE)
+  resetReason      String?
+
+  attendanceLogs AttendanceLog[]
+  claims         AttendanceClaim[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([mapId])
+  @@index([userId, mapId])
+  @@index([status])
+  @@map("attendance_trackers")
+}
+
+model AttendanceLog {
+  id          String            @id @default(uuid()) @db.Uuid
+  trackerId   String            @db.Uuid
+  tracker     AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  checkedInAt DateTime          @default(now())
+
+  @@unique([trackerId, dayNumber])
+  @@index([trackerId])
+  @@map("attendance_logs")
+}
+
+model AttendanceClaim {
+  id             String            @id @default(uuid()) @db.Uuid
+  trackerId      String            @db.Uuid
+  tracker        AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  rewardId       String            @db.Uuid
+  reward         MapReward         @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  dayNumber      Int
+  claimedAt      DateTime          @default(now())
+  deliveryStatus DeliveryStatus    @default(NOT_SENT)
+  deliveredAt    DateTime?
+  deliveryNote   String?
+
+  @@unique([trackerId, rewardId])
+  @@unique([trackerId, dayNumber])
+  @@index([trackerId])
+  @@index([rewardId])
+  @@map("attendance_claims")
+}
+
+model MapChangeLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  mapId       String   @db.Uuid
+  map         Map      @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  adminId     String   @db.Uuid
+  admin       Profile  @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action      String
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([mapId])
+  @@index([adminId])
+  @@map("map_change_logs")
+}

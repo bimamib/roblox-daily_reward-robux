@@ -1,0 +1,1 @@
+export default function NotFound(){return <main className="mx-auto max-w-3xl px-4 py-24 text-center"><h1 className="text-5xl font-black">404</h1><p className="mt-3 text-default-500">Halaman tidak ditemukan.</p></main>}
