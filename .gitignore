@@ -8,3 +8,5 @@ out/
 .DS_Store
 # heroui-agents-md
 .heroui-docs/
+# TypeScript build info
+*.tsbuildinfo
