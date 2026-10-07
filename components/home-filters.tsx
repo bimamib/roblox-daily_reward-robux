@@ -1,19 +1,43 @@
 "use client";
 
-import { Input, Label, ListBox, Select, TextField } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextField,
+} from "@heroui/react";
 
-export function HomeFilters() {
+interface HomeFiltersProps {
+  search?: string;
+  duration?: string;
+}
+
+export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
   return (
-    <div className="mb-7 grid gap-3 md:grid-cols-[1fr_220px]">
-      <TextField name="search">
-        <Label>Cari map</Label>
-        <Input placeholder="Nama map atau creator" />
+    <form
+      method="GET"
+      action="/"
+      className="mb-7 grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end"
+    >
+      <TextField name="search" defaultValue={search}>
+        <Label className="text-foreground">Cari map</Label>
+
+        <Input
+          placeholder="Nama map atau creator"
+          className="text-foreground"
+        />
       </TextField>
 
-      <Select name="duration" placeholder="Semua durasi">
-        <Label>Durasi</Label>
+      <Select
+        name="duration"
+        placeholder="Semua durasi"
+        defaultSelectedKey={duration || null}
+      >
+        <Label className="text-foreground">Durasi</Label>
 
-        <Select.Trigger>
+        <Select.Trigger className="text-foreground">
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
@@ -38,6 +62,10 @@ export function HomeFilters() {
           </ListBox>
         </Select.Popover>
       </Select>
-    </div>
+
+      <Button type="submit" variant="primary" className="skeuo-btn">
+        Cari
+      </Button>
+    </form>
   );
 }
