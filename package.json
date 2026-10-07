@@ -31,12 +31,14 @@
     "zod": "latest"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "latest",
     "@types/pg": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
+    "postcss": "^8.5.29",
     "prisma": "^7.10.0",
     "tsx": "latest",
     "typescript": "latest"
