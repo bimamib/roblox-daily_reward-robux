@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { loginAction } from "@/actions/auth";
 
 interface LoginFormProps {
@@ -16,23 +16,17 @@ export function LoginForm({ error }: LoginFormProps) {
         </div>
       )}
 
-      <Input
-        name="email"
-        type="email"
-        label="Email"
-        placeholder="Masukkan email"
-        isRequired
-      />
+      <TextField name="email" type="email" isRequired>
+        <Label>Email</Label>
+        <Input placeholder="Masukkan email" />
+      </TextField>
 
-      <Input
-        name="password"
-        type="password"
-        label="Password"
-        placeholder="Masukkan password"
-        isRequired
-      />
+      <TextField name="password" type="password" isRequired>
+        <Label>Password</Label>
+        <Input placeholder="Masukkan password" />
+      </TextField>
 
-      <Button type="submit" color="primary" className="w-full">
+      <Button type="submit" variant="primary" className="w-full">
         Login
       </Button>
     </form>
