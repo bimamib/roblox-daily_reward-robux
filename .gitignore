@@ -10,3 +10,4 @@ out/
 .heroui-docs/
 # TypeScript build info
 *.tsbuildinfo
+tsconfig.tsbuildinfo
