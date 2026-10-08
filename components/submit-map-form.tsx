@@ -1,51 +1,65 @@
 "use client";
 
-import { Input, Select, SelectItem, Textarea, Button } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextArea,
+  TextField,
+} from "@heroui/react";
 import { submitMapAction } from "@/actions/maps";
 
 export function SubmitMapForm() {
   return (
     <form action={submitMapAction} className="mt-8 space-y-5">
-      <Input
-        name="name"
-        label="Nama map"
-        placeholder="Contoh: Arena Login Pass"
-        isRequired
-      />
+      <TextField name="name" isRequired>
+        <Label>Nama map</Label>
+        <Input placeholder="Contoh: Arena Login Pass" />
+      </TextField>
 
-      <Input
-        name="creatorName"
-        label="Creator"
-        placeholder="Nama creator Roblox"
-        isRequired
-      />
+      <TextField name="creatorName" isRequired>
+        <Label>Creator</Label>
+        <Input placeholder="Nama creator Roblox" />
+      </TextField>
 
-      <Input
-        name="robloxUrl"
-        label="Roblox URL"
-        type="url"
-        placeholder="https://www.roblox.com/games/..."
-        isRequired
-      />
+      <TextField name="robloxUrl" type="url" isRequired>
+        <Label>Roblox URL</Label>
+        <Input placeholder="https://www.roblox.com/games/..." />
+      </TextField>
 
-      <Select
-        name="durationDays"
-        label="Durasi absensi"
-        placeholder="Pilih durasi"
-        isRequired
-      >
-        <SelectItem key="7">7 Hari</SelectItem>
-        <SelectItem key="14">14 Hari</SelectItem>
-        <SelectItem key="30">30 Hari</SelectItem>
+      <Select name="durationDays" placeholder="Pilih durasi" isRequired>
+        <Label>Durasi absensi</Label>
+
+        <Select.Trigger>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+
+        <Select.Popover>
+          <ListBox>
+            <ListBox.Item id="7" textValue="7 Hari">
+              7 Hari
+            </ListBox.Item>
+
+            <ListBox.Item id="14" textValue="14 Hari">
+              14 Hari
+            </ListBox.Item>
+
+            <ListBox.Item id="30" textValue="30 Hari">
+              30 Hari
+            </ListBox.Item>
+          </ListBox>
+        </Select.Popover>
       </Select>
 
-      <Textarea
-        name="description"
-        label="Catatan"
-        placeholder="Tambahkan informasi mengenai map..."
-      />
+      <TextField name="description">
+        <Label>Catatan</Label>
+        <TextArea placeholder="Tambahkan informasi mengenai map..." />
+      </TextField>
 
-      <Button type="submit" color="primary" className="skeuo-btn w-full">
+      <Button type="submit" variant="primary" className="skeuo-btn w-full">
         Kirim untuk review
       </Button>
     </form>
