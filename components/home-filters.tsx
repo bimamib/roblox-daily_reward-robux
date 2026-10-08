@@ -42,21 +42,33 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover>
-          <ListBox>
-            <ListBox.Item id="all" textValue="Semua durasi">
+        <Select.Popover className="bg-background text-foreground">
+          <ListBox className="bg-background text-foreground">
+            <ListBox.Item
+              id="all"
+              textValue="Semua durasi"
+              className="text-foreground"
+            >
               Semua durasi
             </ListBox.Item>
 
-            <ListBox.Item id="7" textValue="7 Hari">
+            <ListBox.Item id="7" textValue="7 Hari" className="text-foreground">
               7 Hari
             </ListBox.Item>
 
-            <ListBox.Item id="14" textValue="14 Hari">
+            <ListBox.Item
+              id="14"
+              textValue="14 Hari"
+              className="text-foreground"
+            >
               14 Hari
             </ListBox.Item>
 
-            <ListBox.Item id="30" textValue="30 Hari">
+            <ListBox.Item
+              id="30"
+              textValue="30 Hari"
+              className="text-foreground"
+            >
               30 Hari
             </ListBox.Item>
           </ListBox>
