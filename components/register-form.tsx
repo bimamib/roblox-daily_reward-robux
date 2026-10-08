@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, Button } from "@heroui/react";
+import { Button, Input, Label, TextField } from "@heroui/react";
 import { registerAction } from "@/actions/auth";
 
 interface RegisterFormProps {
@@ -21,17 +21,20 @@ export function RegisterForm({ error }: RegisterFormProps) {
         </p>
       )}
 
-      <Input name="username" label="Username" isRequired />
+      <TextField name="username" isRequired>
+        <Label>Username</Label>
+        <Input />
+      </TextField>
 
-      <Input name="email" type="email" label="Email" isRequired />
+      <TextField name="email" type="email" isRequired>
+        <Label>Email</Label>
+        <Input />
+      </TextField>
 
-      <Input
-        name="password"
-        type="password"
-        label="Password"
-        minLength={8}
-        isRequired
-      />
+      <TextField name="password" type="password" isRequired>
+        <Label>Password</Label>
+        <Input minLength={8} />
+      </TextField>
 
       <Button type="submit" className="skeuo-btn w-full">
         Daftar
