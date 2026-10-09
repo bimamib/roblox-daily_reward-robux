@@ -1,23 +1,92 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getActiveMaps() {
+interface GetActiveMapsOptions {
+  search?: string;
+  duration?: string;
+}
+
+export async function getActiveMaps({
+  search,
+  duration,
+}: GetActiveMapsOptions = {}) {
+  const trimmedSearch = search?.trim();
+
+  const durationDays =
+    duration && ["7", "14", "30"].includes(duration)
+      ? Number(duration)
+      : undefined;
+
   return prisma.map.findMany({
-    where: { status: "ACTIVE" },
-    include: {
-      rewards: { orderBy: { dayNumber: "asc" } },
-      nextPhases: { orderBy: { phaseNumber: "asc" } },
+    where: {
+      status: "ACTIVE",
+
+      ...(trimmedSearch
+        ? {
+            OR: [
+              {
+                name: {
+                  contains: trimmedSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                creatorName: {
+                  contains: trimmedSearch,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          }
+        : {}),
+
+      ...(durationDays
+        ? {
+            durationDays,
+          }
+        : {}),
     },
-    orderBy: { publishedAt: "desc" },
+
+    include: {
+      rewards: {
+        orderBy: {
+          dayNumber: "asc",
+        },
+      },
+
+      nextPhases: {
+        orderBy: {
+          phaseNumber: "asc",
+        },
+      },
+    },
+
+    orderBy: {
+      publishedAt: "desc",
+    },
   });
 }
 
 export async function getMapBySlug(slug: string) {
   return prisma.map.findFirst({
-    where: { slug, status: "ACTIVE" },
+    where: {
+      slug,
+      status: "ACTIVE",
+    },
+
     include: {
-      rewards: { orderBy: { dayNumber: "asc" } },
+      rewards: {
+        orderBy: {
+          dayNumber: "asc",
+        },
+      },
+
       parentMap: true,
-      nextPhases: { orderBy: { phaseNumber: "asc" } },
+
+      nextPhases: {
+        orderBy: {
+          phaseNumber: "asc",
+        },
+      },
     },
   });
 }
