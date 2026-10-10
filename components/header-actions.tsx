@@ -12,30 +12,36 @@ export function HeaderActions({ user }: HeaderActionsProps) {
   if (user === undefined) {
     return (
       <>
-        <Link href="/">
-          <Button variant="ghost">Maps</Button>
+        <Link href="/" className="shrink-0">
+          <Button variant="ghost" className="whitespace-nowrap font-medium">
+            Maps
+          </Button>
         </Link>
 
-        <Link href="/dashboard">
-          <Button variant="ghost">Dashboard</Button>
+        <Link href="/dashboard" className="shrink-0">
+          <Button variant="ghost" className="whitespace-nowrap font-medium">
+            Dashboard
+          </Button>
         </Link>
 
-        <Link href="/maps/submit">
-          <Button variant="ghost">Submit Map</Button>
+        <Link href="/maps/submit" className="shrink-0">
+          <Button variant="ghost" className="whitespace-nowrap font-medium">
+            Submit Map
+          </Button>
         </Link>
       </>
     );
   }
 
   return user ? (
-    <form action={logoutAction}>
-      <Button type="submit" variant="secondary">
+    <form action={logoutAction} className="shrink-0">
+      <Button type="submit" variant="secondary" className="whitespace-nowrap">
         Logout
       </Button>
     </form>
   ) : (
-    <Link href="/login">
-      <Button className="skeuo-btn">Login</Button>
+    <Link href="/login" className="shrink-0">
+      <Button className="skeuo-btn whitespace-nowrap">Login</Button>
     </Link>
   );
 }
