@@ -1,13 +1,9 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
-@font-face {
-  font-family: "SF Pro Text";
-  src: url("/fonts/SF-Pro-Text-Regular.otf") format("opentype");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
+/* =========================================================
+   THEME VARIABLES
+   ========================================================= */
 
 :root {
   color-scheme: dark;
@@ -66,6 +62,10 @@ html.light {
   --input-border: #cfd3dc;
 }
 
+/* =========================================================
+   GLOBAL ELEMENTS
+   ========================================================= */
+
 * {
   box-sizing: border-box;
 }
@@ -78,16 +78,8 @@ body {
 body {
   min-height: 100vh;
   margin: 0;
-
   background: var(--bg);
   color: var(--text);
-
-  font-family:
-    "SF Pro Text",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
 
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -96,10 +88,6 @@ body {
     background-color 0.2s ease,
     color 0.2s ease;
 }
-
-/* =========================================================
-   GLOBAL ELEMENTS
-   ========================================================= */
 
 button,
 input,
@@ -130,87 +118,125 @@ label {
   color: var(--text-secondary);
 }
 
-input,
-select,
-textarea {
-  color: var(--text);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--text-muted);
-  opacity: 1;
-}
-
 [data-slot="label"] {
   color: var(--text-secondary) !important;
 }
 
+input,
+select,
+textarea,
 [data-slot="input"],
 [data-slot="textarea"] {
   color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 
+input::placeholder,
+textarea::placeholder,
 [data-slot="input"]::placeholder,
 [data-slot="textarea"]::placeholder {
   color: var(--text-muted) !important;
+  -webkit-text-fill-color: var(--text-muted) !important;
   opacity: 1 !important;
 }
 
+/* Input background */
+input:not(
+  [type="checkbox"],
+  [type="radio"],
+  [type="range"],
+  [type="submit"],
+  [type="button"]
+),
+textarea {
+  background-color: var(--input-bg) !important;
+}
+
+/* Browser autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+  box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+}
+
 /* =========================================================
-   HEROUI SELECT
+   HEROUI SELECT — TRIGGER
    ========================================================= */
 
-/* Text yang sedang tampil pada Select */
 [data-slot="trigger"] {
+  background-color: var(--input-bg) !important;
   color: var(--text) !important;
+  border-color: var(--input-border) !important;
 }
 
-/* Value Select */
-[data-slot="value"] {
+[data-slot="trigger"] [data-slot="value"],
+[data-slot="trigger"] [data-slot="value"] * {
   color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 
-/* Placeholder Select */
 [data-slot="value"][data-placeholder],
 [data-slot="value"][aria-placeholder] {
   color: var(--text-muted) !important;
+  -webkit-text-fill-color: var(--text-muted) !important;
 }
 
-/* Popup Select */
-[data-slot="popover"] {
-  background: var(--surface) !important;
+/* =========================================================
+   HEROUI SELECT — POPOVER AND OPTIONS
+   ========================================================= */
+
+/*
+ * Popover dapat dirender melalui portal di luar komponen
+ * Select. Karena itu, selector tidak dibatasi oleh parent.
+ */
+
+[data-slot="popover"],
+[data-slot="popover-content"],
+[data-slot="listbox"],
+[role="listbox"] {
+  background-color: var(--surface) !important;
   color: var(--text) !important;
-  border: 1px solid var(--border) !important;
+  border-color: var(--border) !important;
 }
 
-/* ListBox */
-[data-slot="listbox"] {
-  background: var(--surface) !important;
+[role="option"],
+[data-slot="listbox"] [data-key] {
+  background-color: transparent !important;
   color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 
-/* Semua option */
-[data-slot="listbox"] [role="option"] {
-  color: var(--text) !important;
-  background: transparent;
-}
-
-/* Option hover */
-[data-slot="listbox"] [role="option"]:hover {
-  color: var(--text) !important;
-  background: var(--surface-hover) !important;
-}
-
-/* Option selected */
-[data-slot="listbox"] [role="option"][aria-selected="true"] {
-  color: #ffffff !important;
-  background: var(--accent) !important;
-}
-
-/* Text di dalam option */
-[data-slot="listbox"] [role="option"] * {
+[role="option"] *,
+[data-slot="listbox"] [data-key] * {
   color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Hover dan keyboard focus */
+[role="option"]:hover,
+[role="option"][data-focused="true"],
+[role="option"][data-focus="true"],
+[data-slot="listbox"] [data-key]:hover {
+  background-color: var(--surface-hover) !important;
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Selected option */
+[role="option"][aria-selected="true"] {
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+[role="option"][aria-selected="true"] * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* =========================================================
@@ -224,38 +250,34 @@ textarea::placeholder {
 
   color: #ffffff !important;
 
-  /*
-   * Dibuat lebih tipis supaya tidak terlihat
-   * seperti ada layer yang terlalu turun.
-   */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
     0 2px 0 #4a369e,
-    0 5px 10px rgba(0, 0, 0, 0.22) !important;
+    0 3px 6px rgba(0, 0, 0, 0.16) !important;
 
-  transform: translateY(-1px);
+  transform: none !important;
 
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease;
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
 }
 
 .skeuo-btn:hover {
-  transform: translateY(-2px);
+  transform: none !important;
+  filter: brightness(1.06);
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 3px 0 #4a369e,
-    0 7px 13px rgba(0, 0, 0, 0.24) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 0 #4a369e,
+    0 4px 8px rgba(0, 0, 0, 0.18) !important;
 }
 
 .skeuo-btn:active {
-  transform: translateY(1px);
+  transform: translateY(1px) !important;
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 1px 0 #4a369e,
-    0 3px 6px rgba(0, 0, 0, 0.2) !important;
+    inset 0 1px 2px rgba(0, 0, 0, 0.12),
+    0 1px 0 #4a369e !important;
 }
 
 /* =========================================================
@@ -264,19 +286,13 @@ textarea::placeholder {
 
 .skeuo-link {
   display: block;
-
   text-align: center;
-
   border-radius: 12px;
-
   padding: 0.7rem 1rem;
-
   font-weight: 800;
 
   background: var(--surface-soft);
-
   color: var(--text);
-
   border: 1px solid var(--border);
 
   box-shadow:
@@ -298,7 +314,6 @@ html.light .skeuo-link {
   background: linear-gradient(145deg, var(--surface), var(--bg-secondary));
 
   border: 1px solid var(--border);
-
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
@@ -312,13 +327,9 @@ html.light .map-card {
 
 .map-cover {
   height: 150px;
-
   padding: 14px;
-
   display: flex;
-
   align-items: end;
-
   position: relative;
 
   background: radial-gradient(circle at 20% 10%, #8b74ff, #30206b 48%, #11121a);
@@ -326,30 +337,20 @@ html.light .map-card {
 
 .map-initial {
   font-size: 3rem;
-
   font-weight: 950;
-
   letter-spacing: -0.08em;
 }
 
 .phase-badge {
   position: absolute;
-
   top: 12px;
   left: 12px;
-
   border-radius: 999px;
-
   background: rgba(0, 0, 0, 0.35);
-
   padding: 5px 9px;
-
   font-size: 0.75rem;
-
   font-weight: 800;
-
   color: #ffffff;
-
   backdrop-filter: blur(8px);
 }
 
@@ -359,19 +360,13 @@ html.light .map-card {
 
 .attendance-row {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 1rem;
 
   border: 1px solid var(--border);
-
   border-radius: 14px;
-
   padding: 13px 15px;
-
   background: var(--surface);
 }
 
@@ -401,23 +396,16 @@ html.light .map-card {
 
 .progress-track {
   width: 100%;
-
   height: 8px;
-
   overflow: hidden;
-
   border-radius: 999px;
-
   background: var(--surface-soft);
 }
 
 .progress-value {
   height: 100%;
-
   border-radius: inherit;
-
   background: linear-gradient(90deg, var(--accent), #a994ff);
-
   transition: width 0.3s ease;
 }
 
@@ -484,4 +472,43 @@ html.light ::-webkit-scrollbar-thumb:hover {
     align-items: flex-start;
     flex-direction: column;
   }
+}
+
+/* =========================================================
+   NAVBAR HORIZONTAL SCROLLBAR
+   ========================================================= */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+.navbar,
+header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.navbar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #777184 transparent;
+  scrollbar-gutter: stable;
+}
+
+.navbar-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 4px;
+}
+
+.navbar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbar-scroll::-webkit-scrollbar-thumb {
+  background: #777184;
+  border-radius: 999px;
+}
+
+.navbar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #9b82ff;
 }
