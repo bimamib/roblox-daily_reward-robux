@@ -23,11 +23,11 @@ export default async function DashboardPage() {
     .filter((claim) => claim.deliveryStatus === "SENT");
 
   const pendingRobux = pending.reduce(
-    (sum, claim) => sum + claim.reward.amount,
+    (sum, claim) => sum + claim.rewardAmount,
     0,
   );
 
-  const sentRobux = sent.reduce((sum, claim) => sum + claim.reward.amount, 0);
+  const sentRobux = sent.reduce((sum, claim) => sum + claim.rewardAmount, 0);
 
   return (
     <DashboardClient
