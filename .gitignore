@@ -10,3 +10,5 @@ out/
 .heroui-docs/
 # TypeScript build info
 *.tsbuildinfo
+# Generated Prisma Client
+/app/generated/prisma/

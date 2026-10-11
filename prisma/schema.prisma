@@ -57,9 +57,10 @@ model Profile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  trackers      AttendanceTracker[]
-  changeLogs    MapChangeLog[]
-  submittedMaps Map[]               @relation("MapSubmitter")
+  trackers       AttendanceTracker[]
+  changeLogs     MapChangeLog[]
+  submittedMaps  Map[]               @relation("MapSubmitter")
+  userMapRewards UserMapReward[]
 
   @@map("profiles")
 }
@@ -85,12 +86,13 @@ model Map {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  parentMap  Map?                @relation("MapPhases", fields: [parentMapId], references: [id], onDelete: SetNull)
-  nextPhases Map[]               @relation("MapPhases")
-  submitter  Profile?            @relation("MapSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
-  rewards    MapReward[]
-  trackers   AttendanceTracker[]
-  changeLogs MapChangeLog[]
+  parentMap      Map?                @relation("MapPhases", fields: [parentMapId], references: [id], onDelete: SetNull)
+  nextPhases     Map[]               @relation("MapPhases")
+  submitter      Profile?            @relation("MapSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  rewards        MapReward[]
+  trackers       AttendanceTracker[]
+  changeLogs     MapChangeLog[]
+  userMapRewards UserMapReward[]
 
   @@index([status])
   @@index([verificationStatus])
@@ -116,6 +118,25 @@ model MapReward {
   @@unique([mapId, dayNumber])
   @@index([mapId])
   @@map("map_rewards")
+}
+
+model UserMapReward {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @db.Uuid
+  user        Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mapId       String     @db.Uuid
+  map         Map        @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  rewardType  RewardType @default(ROBUX)
+  amount      Int        @default(0)
+  title       String
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([userId, mapId, dayNumber])
+  @@index([userId, mapId])
+  @@map("user_map_rewards")
 }
 
 model AttendanceTracker {
@@ -157,14 +178,23 @@ model AttendanceLog {
 }
 
 model AttendanceClaim {
-  id             String            @id @default(uuid()) @db.Uuid
-  trackerId      String            @db.Uuid
-  tracker        AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
-  rewardId       String            @db.Uuid
-  reward         MapReward         @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  dayNumber      Int
-  claimedAt      DateTime          @default(now())
-  deliveryStatus DeliveryStatus    @default(NOT_SENT)
+  id        String            @id @default(uuid()) @db.Uuid
+  trackerId String            @db.Uuid
+  tracker   AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+
+  // Relasi lama dipertahankan untuk klaim historis.
+  rewardId String?    @db.Uuid
+  reward   MapReward? @relation(fields: [rewardId], references: [id], onDelete: SetNull)
+
+  // Snapshot reward saat klaim dibuat.
+  dayNumber         Int
+  rewardType        RewardType
+  rewardAmount      Int        @default(0)
+  rewardTitle       String
+  rewardDescription String?
+
+  claimedAt      DateTime       @default(now())
+  deliveryStatus DeliveryStatus @default(NOT_SENT)
   deliveredAt    DateTime?
   deliveryNote   String?
 
