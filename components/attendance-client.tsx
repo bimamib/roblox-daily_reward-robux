@@ -238,6 +238,21 @@ export function AttendanceClient({
     return reward.title;
   }
 
+  function handleResetMapProgress() {
+    const confirmed = window.confirm(
+      "PERINGATAN: Semua riwayat absensi dan klaim untuk map ini akan dihapus. " +
+        "Cycle akan kembali ke #1. Konfigurasi reward pribadi tetap tersimpan. " +
+        "Tindakan ini tidak dapat dibatalkan. Lanjutkan?",
+    );
+
+    if (!confirmed) return;
+
+    runAction(
+      () => resetMapProgressAction(map.id),
+      "Gagal mereset progres map.",
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* CHECK-IN */}
@@ -260,7 +275,6 @@ export function AttendanceClient({
                 ? "Sudah Hadir Hari Ini"
                 : `Check-in Day ${nextDay}`}
         </Button>
-
         {tracker && (
           <Button
             variant="secondary"
@@ -268,6 +282,16 @@ export function AttendanceClient({
             onPress={handleRestart}
           >
             Mulai Ulang Streak
+          </Button>
+        )}
+        {process.env.NODE_ENV !== "production" && tracker && (
+          <Button
+            type="button"
+            variant="secondary"
+            isDisabled={pending}
+            onPress={handleResetMapProgress}
+          >
+            Reset Data Testing
           </Button>
         )}
       </div>
