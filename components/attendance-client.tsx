@@ -1,15 +1,17 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Checkbox, Button } from "@heroui/react";
 import {
   checkInAction,
   restartTrackerAction,
   setDeliveryStatusAction,
+  saveUserMapRewardAction,
+  deleteUserMapRewardAction,
+  resetMapProgressAction,
 } from "@/actions/attendance";
 
 type RewardType = "ROBUX" | "COIN" | "ITEM" | "XP" | "SPIN" | "OTHER";
-
 type DeliveryStatus = "NOT_APPLICABLE" | "NOT_SENT" | "PENDING" | "SENT";
 
 type AttendanceLog = {
@@ -18,7 +20,7 @@ type AttendanceLog = {
   checkedInAt: string | Date;
 };
 
-type Reward = {
+type UserReward = {
   id: string;
   dayNumber: number;
   rewardType: RewardType;
@@ -32,7 +34,10 @@ type AttendanceClaim = {
   dayNumber: number;
   claimedAt: string | Date;
   deliveryStatus: DeliveryStatus;
-  reward: Reward;
+  rewardType: RewardType;
+  rewardAmount: number;
+  rewardTitle: string;
+  rewardDescription?: string | null;
 };
 
 type Tracker = {
@@ -45,48 +50,53 @@ type Tracker = {
   claims: AttendanceClaim[];
 };
 
-type MapReward = Reward;
-
 type MapData = {
   id: string;
   name: string;
   durationDays: number;
-  rewards: MapReward[];
 };
+
+const rewardTypes: { value: RewardType; label: string }[] = [
+  { value: "ROBUX", label: "Robux" },
+  { value: "COIN", label: "Coin" },
+  { value: "ITEM", label: "Item" },
+  { value: "XP", label: "XP" },
+  { value: "SPIN", label: "Spin" },
+  { value: "OTHER", label: "Lainnya" },
+];
 
 export function AttendanceClient({
   map,
   tracker,
+  userRewards,
 }: {
   map: MapData;
   tracker: Tracker | null;
+  userRewards: UserReward[];
 }) {
   const [pending, startTransition] = useTransition();
+  const [selectedDay, setSelectedDay] = useState("1");
+  const [rewardType, setRewardType] = useState<RewardType>("ROBUX");
+  const [amount, setAmount] = useState("0");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   const attendanceLogs = tracker?.attendanceLogs ?? [];
   const claims = tracker?.claims ?? [];
 
-  /*
-   * AttendanceLog adalah sumber utama untuk menentukan
-   * hari terakhir yang sudah dihadiri.
-   */
   const attendedDays = new Set(attendanceLogs.map((log) => log.dayNumber));
 
-  /*
-   * Claim hanya digunakan untuk reward.
-   */
   const claimedRewards = new Map(
     claims.map((claim) => [claim.dayNumber, claim]),
   );
 
-  /*
-   * Tentukan hari berikutnya berdasarkan attendance,
-   * bukan berdasarkan jumlah reward claim.
-   */
-  const lastAttendanceDay =
-    attendanceLogs.length > 0
-      ? Math.max(...attendanceLogs.map((log) => log.dayNumber))
-      : 0;
+  const configuredRewards = new Map(
+    userRewards.map((reward) => [reward.dayNumber, reward]),
+  );
+
+  const lastAttendanceDay = attendanceLogs.length
+    ? Math.max(...attendanceLogs.map((log) => log.dayNumber))
+    : 0;
 
   const nextDay = Math.min(lastAttendanceDay + 1, map.durationDays);
 
@@ -108,47 +118,80 @@ export function AttendanceClient({
       }).format(new Date())
     : false;
 
-  function handleCheckIn() {
-    if (pending || hasCheckedInToday || isCompleted) {
-      return;
-    }
+  const selectedReward = configuredRewards.get(Number(selectedDay));
+
+  useEffect(() => {
+    const reward = userRewards.find(
+      (item) => item.dayNumber === Number(selectedDay),
+    );
+
+    setRewardType(reward?.rewardType ?? "ROBUX");
+    setAmount(String(reward?.amount ?? 0));
+    setTitle(reward?.title ?? "");
+    setDescription(reward?.description ?? "");
+  }, [selectedDay, userRewards]);
+
+  function runAction(action: () => Promise<unknown>, fallback: string) {
+    if (pending) return;
 
     startTransition(async () => {
       try {
-        await checkInAction(map.id);
+        await action();
         location.reload();
       } catch (error) {
-        alert(
-          error instanceof Error ? error.message : "Gagal melakukan absensi.",
-        );
+        alert(error instanceof Error ? error.message : fallback);
       }
     });
+  }
+
+  function handleCheckIn() {
+    if (hasCheckedInToday || isCompleted) return;
+
+    runAction(() => checkInAction(map.id), "Gagal melakukan absensi.");
   }
 
   function handleRestart() {
-    if (pending) {
+    if (!window.confirm("Mulai ulang streak? Riwayat lama tetap disimpan.")) {
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await restartTrackerAction(map.id);
-        location.reload();
-      } catch (error) {
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Gagal memulai ulang streak.",
-        );
-      }
-    });
+    runAction(
+      () => restartTrackerAction(map.id),
+      "Gagal memulai ulang streak.",
+    );
+  }
+
+  function handleSaveReward(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    runAction(
+      () =>
+        saveUserMapRewardAction({
+          mapId: map.id,
+          dayNumber: Number(selectedDay),
+          rewardType,
+          amount: Number(amount),
+          title,
+          description,
+        }),
+      "Gagal menyimpan reward.",
+    );
+  }
+
+  function handleDeleteReward() {
+    if (!selectedReward) return;
+
+    if (!window.confirm(`Hapus konfigurasi reward Day ${selectedDay}?`)) {
+      return;
+    }
+
+    runAction(
+      () => deleteUserMapRewardAction(map.id, Number(selectedDay)),
+      "Gagal menghapus reward.",
+    );
   }
 
   function handleDeliveryStatus(claim: AttendanceClaim) {
-    if (pending) {
-      return;
-    }
-
     const nextStatus: Exclude<DeliveryStatus, "NOT_APPLICABLE"> =
       claim.deliveryStatus === "NOT_SENT"
         ? "PENDING"
@@ -156,19 +199,14 @@ export function AttendanceClient({
           ? "SENT"
           : "NOT_SENT";
 
-    startTransition(async () => {
-      try {
-        await setDeliveryStatusAction(claim.id, nextStatus);
-
-        location.reload();
-      } catch (error) {
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Gagal mengubah status pengiriman.",
-        );
-      }
-    });
+    runAction(
+      () =>
+        setDeliveryStatusAction(
+          claim.id,
+          nextStatus as "NOT_SENT" | "PENDING" | "SENT",
+        ),
+      "Gagal mengubah status pengiriman.",
+    );
   }
 
   function formatDate(date: string | Date) {
@@ -179,28 +217,38 @@ export function AttendanceClient({
     }).format(new Date(date));
   }
 
-  function getDeliveryLabel(status: DeliveryStatus) {
+  function deliveryLabel(status: DeliveryStatus) {
     switch (status) {
       case "NOT_SENT":
         return "Belum dikirim";
-
       case "PENDING":
         return "Menunggu";
-
       case "SENT":
         return "Sudah dikirim";
-
-      case "NOT_APPLICABLE":
+      default:
         return "Tidak berlaku";
     }
   }
 
+  function rewardLabel(reward: UserReward) {
+    if (reward.rewardType === "ROBUX") {
+      return `${reward.amount} Robux`;
+    }
+
+    return reward.title;
+  }
+
   return (
-    <div className="space-y-5">
-      {/* ACTION */}
+    <div className="space-y-6">
+      {/* CHECK-IN */}
       <div className="flex flex-wrap items-center gap-3">
         <Button
-          isDisabled={pending || hasCheckedInToday || isCompleted || !tracker}
+          isDisabled={
+            pending ||
+            hasCheckedInToday ||
+            isCompleted ||
+            tracker?.status === "ABANDONED"
+          }
           onPress={handleCheckIn}
           className="skeuo-btn"
         >
@@ -224,7 +272,7 @@ export function AttendanceClient({
         )}
       </div>
 
-      {/* INFO */}
+      {/* PROGRESS */}
       {tracker && (
         <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4">
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -232,14 +280,12 @@ export function AttendanceClient({
               <span className="text-default-500">Cycle</span>{" "}
               <span className="font-bold">#{tracker.cycleNumber}</span>
             </div>
-
             <div>
               <span className="text-default-500">Progress</span>{" "}
               <span className="font-bold">
                 {lastAttendanceDay}/{map.durationDays}
               </span>
             </div>
-
             {tracker.lastAttendanceAt && (
               <div>
                 <span className="text-default-500">Terakhir hadir</span>{" "}
@@ -252,71 +298,210 @@ export function AttendanceClient({
         </div>
       )}
 
-      {/* DAILY ATTENDANCE */}
-      <div className="space-y-2">
-        {map.rewards.map((reward) => {
-          const day = reward.dayNumber;
+      {/* USER REWARD SETTINGS */}
+      <section className="space-y-4 rounded-2xl border border-white/10 p-4">
+        <div>
+          <h3 className="text-lg font-bold">Pengaturan reward pribadi</h3>
+          <p className="text-sm text-default-500">
+            Jadwal ini hanya berlaku untuk akunmu dan tetap tersimpan setelah
+            streak dimulai ulang.
+          </p>
+        </div>
 
-          const attended = attendedDays.has(day);
-          const claim = claimedRewards.get(day);
+        <form onSubmit={handleSaveReward} className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1 text-sm">
+              <span>Hari reward</span>
+              <select
+                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                value={selectedDay}
+                onChange={(event) => setSelectedDay(event.target.value)}
+                disabled={pending}
+              >
+                {Array.from(
+                  { length: map.durationDays },
+                  (_, index) => index + 1,
+                ).map((day) => (
+                  <option key={day} value={day}>
+                    Day {day}
+                    {configuredRewards.has(day) ? " · Sudah diatur" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          const locked = !attended && day !== nextDay;
+            <label className="space-y-1 text-sm">
+              <span>Jenis reward</span>
+              <select
+                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                value={rewardType}
+                onChange={(event) =>
+                  setRewardType(event.target.value as RewardType)
+                }
+                disabled={pending}
+              >
+                {rewardTypes.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          return (
-            <div
-              key={reward.id}
-              className={`attendance-row ${attended ? "attendance-done" : ""}`}
-            >
-              <div className="flex items-center gap-3">
-                <Checkbox isSelected={attended} isReadOnly>
-                  {`Day ${day}`}
-                </Checkbox>
+            <label className="space-y-1 text-sm">
+              <span>Nominal (untuk Robux atau reward kuantitatif)</span>
+              <input
+                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                type="number"
+                min="0"
+                step="1"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+                required
+                disabled={pending}
+              />
+            </label>
 
-                <div>
-                  <p className="font-bold">
-                    {reward.rewardType === "ROBUX"
-                      ? `${reward.amount} Robux`
-                      : reward.title}
-                  </p>
+            <label className="space-y-1 text-sm">
+              <span>Judul reward</span>
+              <input
+                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Contoh: Bonus harian"
+                required
+                maxLength={120}
+                disabled={pending}
+              />
+            </label>
+          </div>
 
-                  {attended ? (
-                    <p className="text-xs text-default-500">
-                      Hadir:{" "}
-                      {(() => {
-                        const log = attendanceLogs.find(
-                          (item) => item.dayNumber === day,
-                        );
+          <label className="block space-y-1 text-sm">
+            <span>Deskripsi (opsional)</span>
+            <textarea
+              className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Catatan tentang reward ini"
+              maxLength={1000}
+              rows={2}
+              disabled={pending}
+            />
+          </label>
 
-                        return log ? formatDate(log.checkedInAt) : "-";
-                      })()}
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" isDisabled={pending}>
+              {pending
+                ? "Menyimpan..."
+                : selectedReward
+                  ? "Simpan Perubahan"
+                  : "Tambah Reward"}
+            </Button>
+
+            {selectedReward && (
+              <Button
+                type="button"
+                variant="secondary"
+                isDisabled={pending}
+                onPress={handleDeleteReward}
+              >
+                Hapus Reward
+              </Button>
+            )}
+          </div>
+        </form>
+      </section>
+
+      {/* ALL ATTENDANCE DAYS */}
+      <section className="space-y-2">
+        <div className="mb-3">
+          <h3 className="text-lg font-bold">Daftar absensi</h3>
+          <p className="text-sm text-default-500">
+            Semua hari ditampilkan. Reward hanya muncul pada hari yang kamu
+            konfigurasi.
+          </p>
+        </div>
+
+        {Array.from({ length: map.durationDays }, (_, index) => index + 1).map(
+          (day) => {
+            const attended = attendedDays.has(day);
+            const reward = configuredRewards.get(day);
+            const claim = claimedRewards.get(day);
+            const locked = !attended && day !== nextDay;
+
+            const log = attendanceLogs.find((item) => item.dayNumber === day);
+
+            return (
+              <div
+                key={day}
+                className={`attendance-row ${
+                  attended ? "attendance-done" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Checkbox isSelected={attended} isReadOnly>
+                    {`Day ${day}`}
+                  </Checkbox>
+
+                  <div>
+                    <p className="font-bold">
+                      {reward ? rewardLabel(reward) : "Absensi harian"}
                     </p>
-                  ) : (
-                    <p className="text-xs text-default-500">
-                      {locked
-                        ? "Selesaikan hari sebelumnya"
-                        : "Siap di-check-in"}
-                    </p>
-                  )}
+
+                    {reward ? (
+                      <p className="text-xs text-default-500">
+                        {reward.rewardType === "ROBUX"
+                          ? "Milestone Robux pribadi"
+                          : reward.title}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-default-500">
+                        Tidak ada reward yang diatur
+                      </p>
+                    )}
+
+                    {attended && log && (
+                      <p className="text-xs text-default-500">
+                        Hadir: {formatDate(log.checkedInAt)}
+                      </p>
+                    )}
+
+                    {!attended && (
+                      <p className="text-xs text-default-500">
+                        {locked
+                          ? "Selesaikan hari sebelumnya"
+                          : "Siap di-check-in"}
+                      </p>
+                    )}
+
+                    {claim && (
+                      <p className="mt-1 text-xs text-default-500">
+                        Klaim tercatat: {claim.rewardTitle} ·{" "}
+                        {claim.rewardType === "ROBUX"
+                          ? `${claim.rewardAmount} Robux`
+                          : claim.rewardType}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* DELIVERY STATUS */}
-              {claim && claim.deliveryStatus !== "NOT_APPLICABLE" && (
-                <Button
-                  size="sm"
-                  variant={
-                    claim.deliveryStatus === "SENT" ? "primary" : "secondary"
-                  }
-                  isDisabled={pending}
-                  onPress={() => handleDeliveryStatus(claim)}
-                >
-                  {getDeliveryLabel(claim.deliveryStatus)}
-                </Button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                {claim?.rewardType === "ROBUX" && (
+                  <Button
+                    size="sm"
+                    variant={
+                      claim.deliveryStatus === "SENT" ? "primary" : "secondary"
+                    }
+                    isDisabled={pending}
+                    onPress={() => handleDeliveryStatus(claim)}
+                  >
+                    {deliveryLabel(claim.deliveryStatus)}
+                  </Button>
+                )}
+              </div>
+            );
+          },
+        )}
+      </section>
     </div>
   );
 }
