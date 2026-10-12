@@ -10,31 +10,49 @@ export default async function MapDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
   const map = await getMapBySlug(slug);
-  if (!map) notFound();
+
+  if (!map) {
+    notFound();
+  }
+
   const supabase = await createClient();
+
   const {
-    data: { user },
+    data: { user: authUser },
   } = await supabase.auth.getUser();
-  const tracker = user
-    ? await prisma.attendanceTracker.findFirst({
-        where: {
-          userId: user.id,
-          mapId: map.id,
-          status: "ACTIVE",
-        },
-        include: {
-          attendanceLogs: {
-            orderBy: { dayNumber: "asc" },
+
+  const user = authUser;
+
+  const [tracker, userRewards] = user
+    ? await Promise.all([
+        prisma.attendanceTracker.findFirst({
+          where: {
+            userId: user.id,
+            mapId: map.id,
+            status: { in: ["ACTIVE", "COMPLETED"] },
           },
-          claims: {
-            include: { reward: true },
-            orderBy: { dayNumber: "asc" },
+          include: {
+            attendanceLogs: {
+              orderBy: { dayNumber: "asc" },
+            },
+            claims: {
+              orderBy: { dayNumber: "asc" },
+            },
           },
-        },
-        orderBy: { cycleNumber: "desc" },
-      })
-    : null;
+          orderBy: { cycleNumber: "desc" },
+        }),
+        prisma.userMapReward.findMany({
+          where: {
+            userId: user.id,
+            mapId: map.id,
+          },
+          orderBy: { dayNumber: "asc" },
+        }),
+      ])
+    : [null, []];
+
   const total = map.rewards.reduce(
     (s, r) => s + (r.rewardType === "ROBUX" ? r.amount : 0),
     0,
@@ -69,10 +87,18 @@ export default async function MapDetailPage({
               Absensi {map.durationDays} Hari
             </h2>
             {user ? (
-              <AttendanceClient map={map} tracker={tracker} />
+              <AttendanceClient
+                map={{
+                  id: map.id,
+                  name: map.name,
+                  durationDays: map.durationDays,
+                }}
+                tracker={tracker}
+                userRewards={userRewards}
+              />
             ) : (
-              <p className="text-default-500">
-                Login terlebih dahulu untuk mulai mencatat absensi.
+              <p className="text-sm text-default-500">
+                Login untuk mulai mencatat absensi dan mengatur reward pribadi.
               </p>
             )}
           </div>
