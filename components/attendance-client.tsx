@@ -200,11 +200,7 @@ export function AttendanceClient({
           : "NOT_SENT";
 
     runAction(
-      () =>
-        setDeliveryStatusAction(
-          claim.id,
-          nextStatus as "NOT_SENT" | "PENDING" | "SENT",
-        ),
+      () => setDeliveryStatusAction(claim.id, nextStatus),
       "Gagal mengubah status pengiriman.",
     );
   }
