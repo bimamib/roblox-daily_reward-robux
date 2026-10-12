@@ -357,3 +357,40 @@ export async function setDeliveryStatusAction(
   revalidateMap(claim.tracker.map.slug);
   return { success: true };
 }
+
+/**
+ * Khusus development:
+ * Menghapus seluruh riwayat absensi user untuk satu map.
+ * Konfigurasi UserMapReward tetap dipertahankan.
+ */
+
+export async function resetMapProgressAction(mapId: string) {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Reset progres hanya tersedia di development.");
+  }
+
+  const { user } = await requireUser();
+
+  const map = await prisma.map.findUnique({
+    where: { id: mapId },
+    select: { id: true, slug: true },
+  });
+
+  if (!map) {
+    throw new Error("Map tidak ditemukan.");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.attendanceTracker.deleteMany({
+      where: {
+        userId: user.id,
+        mapId: map.id,
+      },
+    });
+  });
+
+  revalidatePath(`/maps/${map.slug}`);
+  revalidatePath("/dashboard");
+
+  return { success: true };
+}
