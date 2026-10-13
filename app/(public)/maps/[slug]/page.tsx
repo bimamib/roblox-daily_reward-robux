@@ -248,21 +248,14 @@ export default async function MapDetailPage({
       {map.nextPhases.length > 0 && (
         <section className="mt-8 rounded-3xl border border-default-200 bg-content1 p-5 sm:p-7">
           <h2 className="text-xl font-black">Fase selanjutnya</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 flex flex-wrap gap-3">
             {map.nextPhases.map((phase) => (
-              <div
+              <span
                 key={phase.id}
-                className="rounded-2xl border border-default-200 bg-default-50/50 p-4"
+                className="rounded-full border border-default-200 px-4 py-2 text-sm font-semibold"
               >
-                <p className="font-bold">
-                  Fase {phase.phaseNumber}: {phase.name}
-                </p>
-                {phase.description && (
-                  <p className="mt-1 break-words text-sm text-default-500">
-                    {phase.description}
-                  </p>
-                )}
-              </div>
+                Fase {phase.phaseNumber}
+              </span>
             ))}
           </div>
         </section>
