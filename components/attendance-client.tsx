@@ -65,6 +65,15 @@ const rewardTypes: { value: RewardType; label: string }[] = [
   { value: "OTHER", label: "Lainnya" },
 ];
 
+const fieldClass =
+  "w-full min-w-0 appearance-none rounded-2xl border border-default-200 bg-default-50 px-4 py-3 text-sm text-default-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 disabled:cursor-not-allowed disabled:opacity-60";
+
+const labelClass = "block min-w-0 space-y-2 text-sm font-medium";
+
+function formatNumber(value: number) {
+  return value.toLocaleString("id-ID");
+}
+
 export function AttendanceClient({
   map,
   tracker,
@@ -103,22 +112,47 @@ export function AttendanceClient({
   const isCompleted =
     tracker?.status === "COMPLETED" || lastAttendanceDay >= map.durationDays;
 
+  const dateKey = (value: string | Date) =>
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Jakarta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(value));
+
   const hasCheckedInToday = tracker?.lastAttendanceAt
-    ? new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Jakarta",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(new Date(tracker.lastAttendanceAt)) ===
-      new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Jakarta",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(new Date())
+    ? dateKey(tracker.lastAttendanceAt) === dateKey(new Date())
     : false;
 
   const selectedReward = configuredRewards.get(Number(selectedDay));
+
+  const robuxTarget = userRewards.reduce(
+    (sum, reward) => sum + (reward.rewardType === "ROBUX" ? reward.amount : 0),
+    0,
+  );
+
+  const robuxSent = claims.reduce(
+    (sum, claim) =>
+      sum +
+      (claim.rewardType === "ROBUX" && claim.deliveryStatus === "SENT"
+        ? claim.rewardAmount
+        : 0),
+    0,
+  );
+
+  const robuxOutstanding = claims.reduce(
+    (sum, claim) =>
+      sum +
+      (claim.rewardType === "ROBUX" && claim.deliveryStatus !== "SENT"
+        ? claim.rewardAmount
+        : 0),
+    0,
+  );
+
+  const robuxProgress =
+    robuxTarget > 0
+      ? Math.min(100, Math.round((robuxSent / robuxTarget) * 100))
+      : 0;
 
   useEffect(() => {
     const reward = userRewards.find(
@@ -164,15 +198,27 @@ export function AttendanceClient({
   function handleSaveReward(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!title.trim()) {
+      alert("Judul reward wajib diisi.");
+      return;
+    }
+
+    const parsedAmount = Number(amount);
+
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
+      alert("Nominal reward harus berupa angka nol atau lebih.");
+      return;
+    }
+
     runAction(
       () =>
         saveUserMapRewardAction({
           mapId: map.id,
           dayNumber: Number(selectedDay),
           rewardType,
-          amount: Number(amount),
-          title,
-          description,
+          amount: parsedAmount,
+          title: title.trim(),
+          description: description.trim(),
         }),
       "Gagal menyimpan reward.",
     );
@@ -227,11 +273,9 @@ export function AttendanceClient({
   }
 
   function rewardLabel(reward: UserReward) {
-    if (reward.rewardType === "ROBUX") {
-      return `${reward.amount} Robux`;
-    }
-
-    return reward.title;
+    return reward.rewardType === "ROBUX"
+      ? `${formatNumber(reward.amount)} Robux`
+      : reward.title;
   }
 
   function handleResetMapProgress() {
@@ -250,90 +294,164 @@ export function AttendanceClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* CHECK-IN */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          isDisabled={
-            pending ||
-            hasCheckedInToday ||
-            isCompleted ||
-            tracker?.status === "ABANDONED"
-          }
-          onPress={handleCheckIn}
-          className="skeuo-btn"
-        >
-          {pending
-            ? "Memproses..."
-            : isCompleted
-              ? "Streak Selesai"
-              : hasCheckedInToday
-                ? "Sudah Hadir Hari Ini"
-                : `Check-in Day ${nextDay}`}
-        </Button>
-        {tracker && (
+    <div className="min-w-0 space-y-6">
+      {/* ACTIONS */}
+      <section className="rounded-3xl border border-default-200/70 bg-content1 p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button
-            variant="secondary"
-            isDisabled={pending}
-            onPress={handleRestart}
+            isDisabled={
+              pending ||
+              hasCheckedInToday ||
+              isCompleted ||
+              tracker?.status === "ABANDONED"
+            }
+            onPress={handleCheckIn}
+            className="skeuo-btn w-full sm:w-auto"
           >
-            Mulai Ulang Streak
+            {pending
+              ? "Memproses..."
+              : isCompleted
+                ? "Streak Selesai"
+                : hasCheckedInToday
+                  ? "Sudah Hadir Hari Ini"
+                  : `Check-in Day ${nextDay}`}
           </Button>
-        )}
-        {process.env.NODE_ENV !== "production" && tracker && (
-          <Button
-            type="button"
-            variant="secondary"
-            isDisabled={pending}
-            onPress={handleResetMapProgress}
-          >
-            Reset Data Testing
-          </Button>
-        )}
-      </div>
 
-      {/* PROGRESS */}
+          {tracker && (
+            <Button
+              variant="secondary"
+              isDisabled={pending}
+              onPress={handleRestart}
+              className="w-full sm:w-auto"
+            >
+              Mulai Ulang Streak
+            </Button>
+          )}
+
+          {process.env.NODE_ENV !== "production" && tracker && (
+            <Button
+              type="button"
+              variant="secondary"
+              isDisabled={pending}
+              onPress={handleResetMapProgress}
+              className="w-full sm:w-auto"
+            >
+              Reset Data Testing
+            </Button>
+          )}
+        </div>
+      </section>
+
+      {/* TRACKER PROGRESS */}
       {tracker && (
-        <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4">
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        <section className="rounded-3xl border border-default-200/70 bg-content1 p-4 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <span className="text-default-500">Cycle</span>{" "}
-              <span className="font-bold">#{tracker.cycleNumber}</span>
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-500">
+                Progress absensi
+              </p>
+              <h3 className="mt-1 text-xl font-black">
+                Cycle #{tracker.cycleNumber}
+              </h3>
+              <p className="mt-1 text-sm text-default-500">
+                {lastAttendanceDay} dari {map.durationDays} hari
+              </p>
             </div>
-            <div>
-              <span className="text-default-500">Progress</span>{" "}
-              <span className="font-bold">
-                {lastAttendanceDay}/{map.durationDays}
-              </span>
+
+            <span className="w-fit rounded-full border border-default-200 px-3 py-1 text-xs font-bold">
+              {tracker.status === "COMPLETED"
+                ? "Selesai"
+                : tracker.status === "ABANDONED"
+                  ? "Dihentikan"
+                  : "Aktif"}
+            </span>
+          </div>
+
+          <div className="mt-4 h-3 overflow-hidden rounded-full bg-default-200">
+            <div
+              className="h-full rounded-full bg-violet-500 transition-all"
+              style={{
+                width: `${Math.min(
+                  100,
+                  Math.round((lastAttendanceDay / map.durationDays) * 100),
+                )}%`,
+              }}
+            />
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-default-50/70 p-4">
+              <p className="text-xs text-default-500">Target Robux pribadi</p>
+              <p className="mt-1 break-words text-xl font-black">
+                {formatNumber(robuxTarget)} R$
+              </p>
             </div>
-            {tracker.lastAttendanceAt && (
-              <div>
-                <span className="text-default-500">Terakhir hadir</span>{" "}
-                <span className="font-bold">
-                  {formatDate(tracker.lastAttendanceAt)}
-                </span>
-              </div>
+            <div className="rounded-2xl bg-default-50/70 p-4">
+              <p className="text-xs text-default-500">Sudah terkirim</p>
+              <p className="mt-1 break-words text-xl font-black text-success-600">
+                {formatNumber(robuxSent)} R$
+              </p>
+            </div>
+            <div className="rounded-2xl bg-default-50/70 p-4">
+              <p className="text-xs text-default-500">Belum terkirim</p>
+              <p className="mt-1 break-words text-xl font-black">
+                {formatNumber(robuxOutstanding)} R$
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+              <span className="text-default-500">Progress Robux terkirim</span>
+              <strong>{robuxProgress}%</strong>
+            </div>
+            <div
+              className="h-3 overflow-hidden rounded-full bg-default-200"
+              role="progressbar"
+              aria-label="Progress Robux terkirim"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={robuxProgress}
+            >
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-all"
+                style={{ width: `${robuxProgress}%` }}
+              />
+            </div>
+            {robuxTarget === 0 && (
+              <p className="mt-2 text-xs text-default-500">
+                Atur reward Robux pribadi untuk mulai menghitung target.
+              </p>
             )}
           </div>
-        </div>
+
+          {tracker.lastAttendanceAt && (
+            <p className="mt-4 text-xs text-default-500">
+              Terakhir hadir: {formatDate(tracker.lastAttendanceAt)}
+            </p>
+          )}
+        </section>
       )}
 
       {/* USER REWARD SETTINGS */}
-      <section className="space-y-4 rounded-2xl border border-white/10 p-4">
-        <div>
-          <h3 className="text-lg font-bold">Pengaturan reward pribadi</h3>
-          <p className="text-sm text-default-500">
+      <section className="min-w-0 rounded-3xl border border-default-200/70 bg-content1 p-4 sm:p-6">
+        <div className="mb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-500">
+            Personal reward
+          </p>
+          <h3 className="mt-1 text-xl font-black">Pengaturan reward pribadi</h3>
+          <p className="mt-2 text-sm leading-6 text-default-500">
             Jadwal ini hanya berlaku untuk akunmu dan tetap tersimpan setelah
             streak dimulai ulang.
           </p>
         </div>
 
-        <form onSubmit={handleSaveReward} className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1 text-sm">
+        <form onSubmit={handleSaveReward} className="min-w-0 space-y-4">
+          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+            <label className={labelClass}>
               <span>Hari reward</span>
               <select
-                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                className={fieldClass}
                 value={selectedDay}
                 onChange={(event) => setSelectedDay(event.target.value)}
                 disabled={pending}
@@ -350,10 +468,10 @@ export function AttendanceClient({
               </select>
             </label>
 
-            <label className="space-y-1 text-sm">
+            <label className={labelClass}>
               <span>Jenis reward</span>
               <select
-                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                className={fieldClass}
                 value={rewardType}
                 onChange={(event) =>
                   setRewardType(event.target.value as RewardType)
@@ -368,10 +486,10 @@ export function AttendanceClient({
               </select>
             </label>
 
-            <label className="space-y-1 text-sm">
-              <span>Nominal (untuk Robux atau reward kuantitatif)</span>
+            <label className={labelClass}>
+              <span>Nominal reward</span>
               <input
-                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                className={fieldClass}
                 type="number"
                 min="0"
                 step="1"
@@ -380,12 +498,15 @@ export function AttendanceClient({
                 required
                 disabled={pending}
               />
+              <span className="text-xs font-normal text-default-500">
+                Digunakan untuk Robux atau reward kuantitatif.
+              </span>
             </label>
 
-            <label className="space-y-1 text-sm">
+            <label className={labelClass}>
               <span>Judul reward</span>
               <input
-                className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+                className={fieldClass}
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Contoh: Bonus harian"
@@ -396,21 +517,25 @@ export function AttendanceClient({
             </label>
           </div>
 
-          <label className="block space-y-1 text-sm">
+          <label className={labelClass}>
             <span>Deskripsi (opsional)</span>
             <textarea
-              className="w-full rounded-xl border border-default-200 bg-default-50 p-3 text-default-900"
+              className={`${fieldClass} resize-y`}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Catatan tentang reward ini"
               maxLength={1000}
-              rows={2}
+              rows={3}
               disabled={pending}
             />
           </label>
 
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" isDisabled={pending}>
+          <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
+            <Button
+              type="submit"
+              isDisabled={pending}
+              className="w-full sm:w-auto"
+            >
               {pending
                 ? "Menyimpan..."
                 : selectedReward
@@ -424,6 +549,7 @@ export function AttendanceClient({
                 variant="secondary"
                 isDisabled={pending}
                 onPress={handleDeleteReward}
+                className="w-full sm:w-auto"
               >
                 Hapus Reward
               </Button>
@@ -433,94 +559,110 @@ export function AttendanceClient({
       </section>
 
       {/* ALL ATTENDANCE DAYS */}
-      <section className="space-y-2">
-        <div className="mb-3">
-          <h3 className="text-lg font-bold">Daftar absensi</h3>
-          <p className="text-sm text-default-500">
+      <section className="min-w-0 rounded-3xl border border-default-200/70 bg-content1 p-4 sm:p-6">
+        <div className="mb-5">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-500">
+            Daily checklist
+          </p>
+          <h3 className="mt-1 text-xl font-black">Daftar absensi</h3>
+          <p className="mt-2 text-sm leading-6 text-default-500">
             Semua hari ditampilkan. Reward hanya muncul pada hari yang kamu
             konfigurasi.
           </p>
         </div>
 
-        {Array.from({ length: map.durationDays }, (_, index) => index + 1).map(
-          (day) => {
+        <div className="space-y-3">
+          {Array.from(
+            { length: map.durationDays },
+            (_, index) => index + 1,
+          ).map((day) => {
             const attended = attendedDays.has(day);
             const reward = configuredRewards.get(day);
             const claim = claimedRewards.get(day);
             const locked = !attended && day !== nextDay;
-
             const log = attendanceLogs.find((item) => item.dayNumber === day);
 
             return (
               <div
                 key={day}
-                className={`attendance-row ${
-                  attended ? "attendance-done" : ""
+                className={`min-w-0 rounded-2xl border p-3 transition sm:p-4 ${
+                  attended
+                    ? "border-success-500/40 bg-success-500/[0.04]"
+                    : "border-default-200 bg-default-50/40"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Checkbox isSelected={attended} isReadOnly>
-                    {`Day ${day}`}
-                  </Checkbox>
+                <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="pt-0.5">
+                      <Checkbox isSelected={attended} isReadOnly>
+                        {`Day ${day}`}
+                      </Checkbox>
+                    </div>
 
-                  <div>
-                    <p className="font-bold">
-                      {reward ? rewardLabel(reward) : "Absensi harian"}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words font-bold">
+                        {reward ? rewardLabel(reward) : "Absensi harian"}
+                      </p>
 
-                    {reward ? (
-                      <p className="text-xs text-default-500">
-                        {reward.rewardType === "ROBUX"
-                          ? "Milestone Robux pribadi"
-                          : reward.title}
+                      <p className="mt-1 break-words text-xs text-default-500">
+                        {reward
+                          ? reward.rewardType === "ROBUX"
+                            ? "Milestone Robux pribadi"
+                            : reward.title
+                          : "Tidak ada reward yang diatur"}
                       </p>
-                    ) : (
-                      <p className="text-xs text-default-500">
-                        Tidak ada reward yang diatur
-                      </p>
-                    )}
 
-                    {attended && log && (
-                      <p className="text-xs text-default-500">
-                        Hadir: {formatDate(log.checkedInAt)}
-                      </p>
-                    )}
+                      {reward?.description && (
+                        <p className="mt-1 break-words text-xs leading-5 text-default-500">
+                          {reward.description}
+                        </p>
+                      )}
 
-                    {!attended && (
-                      <p className="text-xs text-default-500">
-                        {locked
-                          ? "Selesaikan hari sebelumnya"
-                          : "Siap di-check-in"}
-                      </p>
-                    )}
+                      {attended && log && (
+                        <p className="mt-2 text-xs text-default-500">
+                          Hadir: {formatDate(log.checkedInAt)}
+                        </p>
+                      )}
 
-                    {claim && (
-                      <p className="mt-1 text-xs text-default-500">
-                        Klaim tercatat: {claim.rewardTitle} ·{" "}
-                        {claim.rewardType === "ROBUX"
-                          ? `${claim.rewardAmount} Robux`
-                          : claim.rewardType}
-                      </p>
-                    )}
+                      {!attended && (
+                        <p className="mt-2 text-xs text-default-500">
+                          {locked
+                            ? "Selesaikan hari sebelumnya"
+                            : "Siap di-check-in"}
+                        </p>
+                      )}
+
+                      {claim && (
+                        <p className="mt-2 break-words text-xs text-default-500">
+                          Klaim tercatat: {claim.rewardTitle} ·{" "}
+                          {claim.rewardType === "ROBUX"
+                            ? `${formatNumber(claim.rewardAmount)} Robux`
+                            : claim.rewardType}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {claim?.rewardType === "ROBUX" && (
-                  <Button
-                    size="sm"
-                    variant={
-                      claim.deliveryStatus === "SENT" ? "primary" : "secondary"
-                    }
-                    isDisabled={pending}
-                    onPress={() => handleDeliveryStatus(claim)}
-                  >
-                    {deliveryLabel(claim.deliveryStatus)}
-                  </Button>
-                )}
+                  {claim?.rewardType === "ROBUX" && (
+                    <Button
+                      size="sm"
+                      variant={
+                        claim.deliveryStatus === "SENT"
+                          ? "primary"
+                          : "secondary"
+                      }
+                      isDisabled={pending}
+                      onPress={() => handleDeliveryStatus(claim)}
+                      className="w-full shrink-0 sm:w-auto"
+                    >
+                      {deliveryLabel(claim.deliveryStatus)}
+                    </Button>
+                  )}
+                </div>
               </div>
             );
-          },
-        )}
+          })}
+        </div>
       </section>
     </div>
   );
