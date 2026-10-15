@@ -178,7 +178,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
               tracker.status === "ACTIVE"
                 ? "success"
                 : tracker.status === "COMPLETED"
-                  ? "primary"
+                  ? "accent"
                   : "default"
             }
             variant="soft"
