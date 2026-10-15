@@ -10,8 +10,8 @@ export default async function DashboardPage() {
   const user = await requireUser();
 
   const [trackers, submittedMaps] = await Promise.all([
-    getUserDashboard(user.id),
-    getUserSubmittedMaps(user.id),
+    getUserDashboard(user.profile.id),
+    getUserSubmittedMaps(user.profile.id),
   ]);
 
   const mapIds = [...new Set(trackers.map((tracker) => tracker.mapId))];
@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   const userRewards = mapIds.length
     ? await prisma.userMapReward.findMany({
         where: {
-          userId: user.id,
+          userId: user.profile.id,
           mapId: { in: mapIds },
         },
         orderBy: { dayNumber: "asc" },
@@ -72,8 +72,9 @@ export default async function DashboardPage() {
     <main className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-10">
       <DashboardClient
         profile={{
-          displayName: user.displayName ?? user.username ?? "Pengguna",
-          username: user.username ?? "",
+          displayName:
+            user.profile.displayName ?? user.profile.username ?? "Pengguna",
+          username: user.profile.username ?? "",
         }}
         trackers={trackersWithRewards}
         submittedMaps={submittedMaps}
