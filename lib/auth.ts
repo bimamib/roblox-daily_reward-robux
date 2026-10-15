@@ -4,7 +4,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function requireUser() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
   const profile = await prisma.profile.findUnique({ where: { id: user.id } });
   if (!profile) throw new Error("Profile belum tersedia.");
