@@ -93,8 +93,7 @@ export default async function MapDetailPage({
       </Link>
 
       <section className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-7">
-        <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white shadow-lg sm:min-h-64 sm:p-7">
-          <div className="pointer-events-none absolute -right-8 -top-10 size-48 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden map-detail-cover rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white sm:min-h-64 sm:p-7">
           <div className="relative flex flex-wrap gap-2">
             <Chip
               size="sm"
@@ -113,7 +112,7 @@ export default async function MapDetailPage({
           </div>
 
           <div className="relative mt-8">
-            <div className="mb-3 flex size-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-xl font-black tracking-tight shadow-inner sm:size-20 sm:text-2xl">
+            <div className="mb-3 flex size-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-xl font-black tracking-tight sm:size-20 sm:text-2xl">
               {initials}
             </div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-200">
