@@ -172,6 +172,8 @@ textarea:-webkit-autofill:focus {
   background-color: var(--input-bg) !important;
   color: var(--text) !important;
   border-color: var(--input-border) !important;
+  border-radius: 1rem !important;
+  box-shadow: none !important;
 }
 
 [data-slot="trigger"] [data-slot="value"],
@@ -202,6 +204,8 @@ textarea:-webkit-autofill:focus {
   background-color: var(--surface) !important;
   color: var(--text) !important;
   border-color: var(--border) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
 }
 
 [role="option"],
@@ -217,6 +221,13 @@ textarea:-webkit-autofill:focus {
   -webkit-text-fill-color: inherit !important;
 }
 
+[role="option"],
+[data-slot="listbox"] [data-key] {
+  border-radius: 0.75rem !important;
+  min-height: 2.5rem;
+  padding-inline: 0.75rem;
+}
+
 /* Hover dan keyboard focus */
 [role="option"]:hover,
 [role="option"][data-focused="true"],
@@ -228,7 +239,9 @@ textarea:-webkit-autofill:focus {
 }
 
 /* Selected option */
-[role="option"][aria-selected="true"] {
+[role="option"][aria-selected="true"],
+[role="option"][data-selected="true"],
+[data-slot="listbox"] [data-key][data-selected="true"] {
   background-color: var(--accent) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
@@ -311,14 +324,9 @@ html.light .skeuo-link {
    ========================================================= */
 
 .map-card {
-  background: linear-gradient(145deg, var(--surface), var(--bg-secondary));
-
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
-
-html.light .map-card {
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 /* =========================================================
@@ -511,4 +519,71 @@ header {
 
 .navbar-scroll::-webkit-scrollbar-thumb:hover {
   background: #9b82ff;
+}
+
+/* =========================================================
+   CONSISTENT THEME + FORM CONTROLS
+   ========================================================= */
+html.light {
+  --heroui-background: #f5f6fa;
+  --heroui-foreground: #171923;
+  --heroui-content1: #ffffff;
+  --heroui-content2: #f0f2f7;
+  --heroui-content3: #e9ecf3;
+  --heroui-content4: #dfe3ec;
+  --heroui-default-50: #f8f9fc;
+  --heroui-default-100: #f0f2f7;
+  --heroui-default-200: #dfe2e9;
+  --heroui-default-300: #cfd3dc;
+  --heroui-default-400: #a8afbd;
+  --heroui-default-500: #697080;
+  --heroui-default-600: #555c6a;
+  --heroui-default-700: #3f4451;
+  --heroui-default-800: #292d38;
+  --heroui-default-900: #171923;
+}
+
+html:not(.light) {
+  --heroui-background: #0b0c10;
+  --heroui-foreground: #f5f5f7;
+  --heroui-content1: #15171e;
+  --heroui-content2: #191c24;
+  --heroui-content3: #20232d;
+  --heroui-content4: #292d38;
+  --heroui-default-50: #15171e;
+  --heroui-default-100: #191c24;
+  --heroui-default-200: #292d38;
+  --heroui-default-300: #343946;
+  --heroui-default-400: #747c8d;
+  --heroui-default-500: #9ca3b4;
+  --heroui-default-600: #b7bdc9;
+  --heroui-default-700: #d4d7df;
+  --heroui-default-800: #e6e8ee;
+  --heroui-default-900: #f5f5f7;
+}
+
+/* Native controls that remain in admin forms use the same theme tokens. */
+select,
+input:not(
+  [type="checkbox"],
+  [type="radio"],
+  [type="range"],
+  [type="submit"],
+  [type="button"]
+),
+textarea {
+  border-radius: 1rem;
+  border-color: var(--input-border);
+  color: var(--text);
+  accent-color: var(--accent);
+}
+
+select {
+  appearance: none;
+  background-color: var(--input-bg);
+}
+
+/* The map detail cover intentionally has no drop shadow or blur decoration. */
+.map-detail-cover {
+  box-shadow: none !important;
 }
