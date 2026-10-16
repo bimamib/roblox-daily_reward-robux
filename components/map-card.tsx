@@ -32,7 +32,7 @@ export function MapCard({ map }: { map: MapCardData }) {
       href={`/maps/${map.slug}`}
       className="group block min-w-0 rounded-3xl outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
     >
-      <Card className="h-full min-w-0 border border-default-200/70 bg-content1 transition duration-200 group-hover:-translate-y-1 group-hover:border-violet-400/60 group-hover:shadow-lg">
+      <Card className="h-full min-w-0 border border-default-200/70 bg-content1 transition duration-200 group-hover:-translate-y-1 group-hover:border-violet-400/60 group-hover:shadow-none">
         <Card.Content className="flex h-full min-w-0 flex-col gap-4 p-4 sm:p-5">
           <div className="flex min-w-0 items-start gap-3">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-700 text-sm font-black text-white shadow-md sm:size-14">
@@ -60,7 +60,12 @@ export function MapCard({ map }: { map: MapCardData }) {
               {map.durationDays} hari
             </Chip>
 
-            <Chip size="sm" color="success" variant="soft">
+            <Chip
+              size="sm"
+              color="success"
+              variant="soft"
+              className="font-semibold"
+            >
               💰 {totalRobux.toLocaleString("id-ID")} Robux
             </Chip>
 

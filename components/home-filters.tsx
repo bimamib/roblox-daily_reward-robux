@@ -22,11 +22,11 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
       className="mb-7 grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end"
     >
       <TextField name="search" defaultValue={search}>
-        <Label className="text-foreground">Cari map</Label>
+        <Label className="rounded-xl text-foreground">Cari map</Label>
 
         <Input
           placeholder="Nama map atau creator"
-          className="text-foreground"
+          className="rounded-xl text-foreground"
         />
       </TextField>
 
@@ -35,31 +35,35 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
         placeholder="Semua durasi"
         defaultSelectedKey={duration || null}
       >
-        <Label className="text-foreground">Durasi</Label>
+        <Label className="rounded-xl text-foreground">Durasi</Label>
 
-        <Select.Trigger className="text-foreground">
+        <Select.Trigger className="rounded-2xl border border-default-200 bg-content1 text-foreground shadow-none">
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover className="bg-background text-foreground">
-          <ListBox className="bg-background text-foreground">
+        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+          <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
             <ListBox.Item
               id="all"
               textValue="Semua durasi"
-              className="text-foreground"
+              className="rounded-xl text-foreground"
             >
               Semua durasi
             </ListBox.Item>
 
-            <ListBox.Item id="7" textValue="7 Hari" className="text-foreground">
+            <ListBox.Item
+              id="7"
+              textValue="7 Hari"
+              className="rounded-xl text-foreground"
+            >
               7 Hari
             </ListBox.Item>
 
             <ListBox.Item
               id="14"
               textValue="14 Hari"
-              className="text-foreground"
+              className="rounded-xl text-foreground"
             >
               14 Hari
             </ListBox.Item>
@@ -67,7 +71,7 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
             <ListBox.Item
               id="30"
               textValue="30 Hari"
-              className="text-foreground"
+              className="rounded-xl text-foreground"
             >
               30 Hari
             </ListBox.Item>

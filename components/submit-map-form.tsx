@@ -32,22 +32,34 @@ export function SubmitMapForm() {
       <Select name="durationDays" placeholder="Pilih durasi" isRequired>
         <Label>Durasi absensi</Label>
 
-        <Select.Trigger>
+        <Select.Trigger className="rounded-2xl border border-default-200 bg-content1 text-foreground shadow-none">
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover>
-          <ListBox>
-            <ListBox.Item id="7" textValue="7 Hari">
+        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+          <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
+            <ListBox.Item
+              id="7"
+              textValue="7 Hari"
+              className="rounded-xl text-foreground"
+            >
               7 Hari
             </ListBox.Item>
 
-            <ListBox.Item id="14" textValue="14 Hari">
+            <ListBox.Item
+              id="14"
+              textValue="14 Hari"
+              className="rounded-xl text-foreground"
+            >
               14 Hari
             </ListBox.Item>
 
-            <ListBox.Item id="30" textValue="30 Hari">
+            <ListBox.Item
+              id="30"
+              textValue="30 Hari"
+              className="rounded-xl text-foreground"
+            >
               30 Hari
             </ListBox.Item>
           </ListBox>

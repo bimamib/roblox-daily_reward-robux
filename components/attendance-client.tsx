@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Checkbox, Button } from "@heroui/react";
+import { Checkbox, Button, Label, ListBox, Select } from "@heroui/react";
 import {
   checkInAction,
   restartTrackerAction,
@@ -66,7 +66,7 @@ const rewardTypes: { value: RewardType; label: string }[] = [
 ];
 
 const fieldClass =
-  "w-full min-w-0 appearance-none rounded-2xl border border-default-200 bg-default-50 px-4 py-3 text-sm text-default-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full min-w-0 rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-default-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 disabled:cursor-not-allowed disabled:opacity-60";
 
 const labelClass = "block min-w-0 space-y-2 text-sm font-medium";
 
@@ -448,43 +448,73 @@ export function AttendanceClient({
 
         <form onSubmit={handleSaveReward} className="min-w-0 space-y-4">
           <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-            <label className={labelClass}>
-              <span>Hari reward</span>
-              <select
-                className={fieldClass}
-                value={selectedDay}
-                onChange={(event) => setSelectedDay(event.target.value)}
-                disabled={pending}
-              >
-                {Array.from(
-                  { length: map.durationDays },
-                  (_, index) => index + 1,
-                ).map((day) => (
-                  <option key={day} value={day}>
-                    Day {day}
-                    {configuredRewards.has(day) ? " · Sudah diatur" : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={labelClass}>
-              <span>Jenis reward</span>
-              <select
-                className={fieldClass}
-                value={rewardType}
-                onChange={(event) =>
-                  setRewardType(event.target.value as RewardType)
+            <div className={labelClass}>
+              <Label>Hari reward</Label>
+              <Select
+                aria-label="Hari reward"
+                selectedKey={selectedDay}
+                onSelectionChange={(key) =>
+                  key != null && setSelectedDay(String(key))
                 }
-                disabled={pending}
+                isDisabled={pending}
               >
-                {rewardTypes.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+                  <ListBox className="max-h-64 overflow-y-auto rounded-xl bg-content1 p-1 text-foreground">
+                    {Array.from(
+                      { length: map.durationDays },
+                      (_, index) => index + 1,
+                    ).map((day) => (
+                      <ListBox.Item
+                        key={day}
+                        id={String(day)}
+                        textValue={`Day ${day}`}
+                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                      >
+                        Day {day}
+                        {configuredRewards.has(day) ? " · Sudah diatur" : ""}
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
+
+            <div className={labelClass}>
+              <Label>Jenis reward</Label>
+              <Select
+                aria-label="Jenis reward"
+                selectedKey={rewardType}
+                onSelectionChange={(key) =>
+                  key != null && setRewardType(String(key) as RewardType)
+                }
+                isDisabled={pending}
+              >
+                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+                  <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
+                    {rewardTypes.map((item) => (
+                      <ListBox.Item
+                        key={item.value}
+                        id={item.value}
+                        textValue={item.label}
+                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                      >
+                        {item.label}
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+            </div>
 
             <label className={labelClass}>
               <span>Nominal reward</span>

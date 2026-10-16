@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { logoutAction } from "@/actions/auth";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface HeaderActionsProps {
   user?: boolean;
@@ -34,14 +35,20 @@ export function HeaderActions({ user }: HeaderActionsProps) {
   }
 
   return user ? (
-    <form action={logoutAction} className="shrink-0">
-      <Button type="submit" variant="secondary" className="whitespace-nowrap">
-        Logout
-      </Button>
-    </form>
+    <div className="flex items-center gap-2">
+      <ThemeToggle />
+      <form action={logoutAction} className="shrink-0">
+        <Button type="submit" variant="secondary" className="whitespace-nowrap">
+          Logout
+        </Button>
+      </form>
+    </div>
   ) : (
-    <Link href="/login" className="shrink-0">
-      <Button className="skeuo-btn whitespace-nowrap">Login</Button>
-    </Link>
+    <div className="flex items-center gap-2">
+      <ThemeToggle />
+      <Link href="/login" className="shrink-0">
+        <Button className="skeuo-btn whitespace-nowrap">Login</Button>
+      </Link>
+    </div>
   );
 }
