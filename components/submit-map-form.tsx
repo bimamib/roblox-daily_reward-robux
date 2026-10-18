@@ -37,7 +37,7 @@ export function SubmitMapForm() {
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
           <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
             <ListBox.Item
               id="7"
