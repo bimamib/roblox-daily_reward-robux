@@ -35,7 +35,7 @@ export function MapCard({ map }: { map: MapCardData }) {
       <Card className="h-full min-w-0 border border-default-200/70 bg-content1 transition duration-200 group-hover:-translate-y-1 group-hover:border-violet-400/60 group-hover:shadow-none">
         <Card.Content className="flex h-full min-w-0 flex-col gap-4 p-4 sm:p-5">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-700 text-sm font-black text-white shadow-md sm:size-14">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-700 text-sm font-black text-white shadow-none sm:size-14">
               {map.name
                 .trim()
                 .split(/\s+/)
@@ -62,11 +62,13 @@ export function MapCard({ map }: { map: MapCardData }) {
 
             <Chip
               size="sm"
-              color="success"
+              color={totalRobux > 0 ? "success" : "default"}
               variant="soft"
               className="font-semibold"
             >
-              💰 {totalRobux.toLocaleString("id-ID")} Robux
+              {totalRobux > 0
+                ? `💰 ${totalRobux.toLocaleString("id-ID")} Robux`
+                : "Reward Robux belum tersedia"}
             </Chip>
 
             <Chip
