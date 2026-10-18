@@ -201,11 +201,28 @@ textarea:-webkit-autofill:focus {
 [data-slot="popover-content"],
 [data-slot="listbox"],
 [role="listbox"] {
-  background-color: var(--surface) !important;
+  background: var(--surface) !important;
   color: var(--text) !important;
-  border-color: var(--border) !important;
+  border: 1px solid var(--border) !important;
   border-radius: 1rem !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18) !important;
+  outline: none !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* HeroUI v3 select popovers can render in a portal, so target them globally. */
+[data-slot="popover"]:focus,
+[data-slot="popover"]:focus-visible,
+[data-slot="popover-content"]:focus,
+[data-slot="popover-content"]:focus-visible {
+  outline: none !important;
+  border-color: var(--border) !important;
+}
+
+[data-slot="popover"] [data-slot="listbox"],
+[data-slot="popover-content"] [data-slot="listbox"],
+[role="listbox"] [role="option"] {
+  border: 0 !important;
+  box-shadow: none !important;
 }
 
 [role="option"],
@@ -264,9 +281,8 @@ textarea:-webkit-autofill:focus {
   color: #ffffff !important;
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 2px 0 #4a369e,
-    0 3px 6px rgba(0, 0, 0, 0.16) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 0 rgba(54, 38, 125, 0.8) !important;
 
   transform: none !important;
 
@@ -280,9 +296,8 @@ textarea:-webkit-autofill:focus {
   filter: brightness(1.06);
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 2px 0 #4a369e,
-    0 4px 8px rgba(0, 0, 0, 0.18) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 1px 0 rgba(54, 38, 125, 0.8) !important;
 }
 
 .skeuo-btn:active {
@@ -308,15 +323,11 @@ textarea:-webkit-autofill:focus {
   color: var(--text);
   border: 1px solid var(--border);
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 2px 0 rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 html.light .skeuo-link {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 2px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 /* =========================================================
@@ -586,4 +597,56 @@ select {
 /* The map detail cover intentionally has no drop shadow or blur decoration. */
 .map-detail-cover {
   box-shadow: none !important;
+}
+
+/* Final, theme-aware overrides for HeroUI v3 select surfaces. */
+[data-slot="trigger"] {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 1rem !important;
+  box-shadow: none !important;
+}
+
+[data-slot="popover"],
+[data-slot="popover-content"] {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 1rem !important;
+  outline: 0 !important;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1) !important;
+  overflow: hidden;
+}
+
+[data-slot="popover"] [data-slot="listbox"],
+[data-slot="popover-content"] [data-slot="listbox"],
+[data-slot="listbox"] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0.8rem !important;
+  box-shadow: none !important;
+  padding: 0.25rem !important;
+}
+
+[data-slot="listbox"] [data-key],
+[data-slot="listbox"] [role="option"],
+[role="listbox"] [role="option"] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0.7rem !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+}
+
+[data-slot="listbox"] [data-key]:hover,
+[data-slot="listbox"] [data-key][data-focused="true"],
+[data-slot="listbox"] [role="option"]:hover,
+[role="listbox"] [role="option"]:hover {
+  background: var(--surface-hover) !important;
+}
+
+[data-slot="listbox"] [data-key][data-selected="true"],
+[data-slot="listbox"] [role="option"][aria-selected="true"],
+[role="listbox"] [role="option"][aria-selected="true"] {
+  background: var(--accent) !important;
+  color: #fff !important;
 }
