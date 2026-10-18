@@ -462,7 +462,7 @@ export function AttendanceClient({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
                   <ListBox className="max-h-64 overflow-y-auto rounded-xl bg-content1 p-1 text-foreground">
                     {Array.from(
                       { length: map.durationDays },
@@ -498,7 +498,7 @@ export function AttendanceClient({
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-xl">
+                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
                   <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
                     {rewardTypes.map((item) => (
                       <ListBox.Item
