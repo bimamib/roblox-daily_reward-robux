@@ -10,7 +10,7 @@ export async function Header() {
   } = await supabase.auth.getUser();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-background/85 backdrop-blur-xl">
+    <header className="site-navbar sticky top-0 z-40 w-full border-b border-white/10 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4">
         {/* Logo */}
         <Link
@@ -22,12 +22,12 @@ export async function Header() {
         </Link>
 
         {/* Area navigasi dengan scrollbar di bawah */}
-        <div className="min-w-0 flex-1 self-stretch">
+        <div className="min-w-0 flex-1 self-stretch overflow-x-auto navbar-scroll">
           <nav
             aria-label="Navigasi utama"
-            className="flex h-full min-w-0 items-center"
+            className="flex h-full min-w-max items-center"
           >
-            <div className="flex h-full items-center gap-1 md:gap-2">
+            <div className="flex h-full min-w-max items-center gap-1 md:gap-2">
               <HeaderActions />
             </div>
           </nav>
