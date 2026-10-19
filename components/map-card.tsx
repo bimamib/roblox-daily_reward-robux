@@ -20,12 +20,28 @@ type MapCardData = {
   rewards?: MapReward[];
 };
 
-export function MapCard({ map }: { map: MapCardData }) {
-  const totalRobux = (map.rewards ?? []).reduce(
+export function MapCard({
+  map,
+  signedIn = false,
+  personalRobuxTotal = 0,
+}: {
+  map: MapCardData;
+  signedIn?: boolean;
+  personalRobuxTotal?: number;
+}) {
+  const publicRobuxTotal = (map.rewards ?? []).reduce(
     (total, reward) =>
       total + (reward.rewardType === "ROBUX" ? reward.amount : 0),
     0,
   );
+  const totalRobux = signedIn ? personalRobuxTotal : publicRobuxTotal;
+  const robuxLabel = signedIn
+    ? totalRobux > 0
+      ? `🎯 Target pribadi: ${totalRobux.toLocaleString("id-ID")} Robux`
+      : "Target Robux pribadi: 0"
+    : totalRobux > 0
+      ? `💰 ${totalRobux.toLocaleString("id-ID")} Robux tersedia`
+      : "Reward Robux belum tersedia";
 
   return (
     <Link
@@ -66,9 +82,7 @@ export function MapCard({ map }: { map: MapCardData }) {
               variant="soft"
               className="font-semibold"
             >
-              {totalRobux > 0
-                ? `💰 ${totalRobux.toLocaleString("id-ID")} Robux`
-                : "Reward Robux belum tersedia"}
+              {robuxLabel}
             </Chip>
 
             <Chip
