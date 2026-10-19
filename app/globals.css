@@ -602,18 +602,18 @@ select {
 
 [data-slot="popover"],
 [data-slot="popover-content"] {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
+  background: var(--input-bg) !important;
+  border: 0 !important;
   border-radius: 1rem !important;
   outline: 0 !important;
-  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16) !important;
   overflow: hidden;
 }
 
 [data-slot="popover"] [data-slot="listbox"],
 [data-slot="popover-content"] [data-slot="listbox"],
 [data-slot="listbox"] {
-  background: transparent !important;
+  background: var(--input-bg) !important;
   border: 0 !important;
   border-radius: 0.8rem !important;
   box-shadow: none !important;
@@ -723,5 +723,24 @@ main section,
   .site-navbar > div {
     gap: 0.65rem;
     padding-inline: 0.7rem;
+  }
+}
+
+/* Smooth theme changes for text and surfaces without animating layout. */
+html,
+body,
+body *:not(svg):not(path):not([data-slot="popover"] *) {
+  transition-property:
+    color, background-color, border-color, fill, stroke, transform, box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  body * {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
   }
 }
