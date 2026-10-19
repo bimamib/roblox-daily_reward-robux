@@ -43,7 +43,6 @@ export function ThemeToggle() {
           ? `Aktifkan mode ${theme === "dark" ? "terang" : "gelap"}`
           : "Ubah tema"
       }
-      title={theme === "dark" ? "Aktifkan light mode" : "Aktifkan dark mode"}
       onPress={toggleTheme}
       className="shrink-0 rounded-full border border-default-200 bg-content1 text-foreground"
     >
