@@ -68,7 +68,7 @@ const rewardTypes: { value: RewardType; label: string }[] = [
 const fieldClass =
   "w-full min-w-0 rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-default-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 disabled:cursor-not-allowed disabled:opacity-60";
 
-const labelClass = "block min-w-0 space-y-2 text-sm font-medium";
+const labelClass = "block w-full min-w-0 space-y-2 text-sm font-medium";
 
 function formatNumber(value: number) {
   return value.toLocaleString("id-ID");
@@ -447,7 +447,7 @@ export function AttendanceClient({
         </div>
 
         <form onSubmit={handleSaveReward} className="min-w-0 space-y-4">
-          <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
             <div className={labelClass}>
               <Label>Hari reward</Label>
               <Select
