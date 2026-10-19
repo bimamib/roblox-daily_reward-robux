@@ -1,6 +1,8 @@
 import { getActiveMaps } from "@/lib/maps/queries";
 import { MapCard } from "@/components/map-card";
 import { HomeFilters } from "@/components/home-filters";
+import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -20,6 +22,29 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     search,
     duration,
   });
+
+  // The detail page displays the signed-in user's personal Robux target.
+  // Use that same source on the home cards so both pages stay in sync.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const personalRewards =
+    user && maps.length
+      ? await prisma.userMapReward.findMany({
+          where: { userId: user.id, mapId: { in: maps.map((map) => map.id) } },
+          select: { mapId: true, rewardType: true, amount: true },
+        })
+      : [];
+  const personalRobuxByMap = new Map<string, number>();
+  for (const reward of personalRewards) {
+    if (reward.rewardType === "ROBUX") {
+      personalRobuxByMap.set(
+        reward.mapId,
+        (personalRobuxByMap.get(reward.mapId) ?? 0) + reward.amount,
+      );
+    }
+  }
 
   return (
     <main>
@@ -57,7 +82,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         {maps.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {maps.map((map) => (
-              <MapCard key={map.id} map={map} />
+              <MapCard
+                key={map.id}
+                map={map}
+                signedIn={!!user}
+                personalRobuxTotal={personalRobuxByMap.get(map.id) ?? 0}
+              />
             ))}
           </div>
         ) : (
