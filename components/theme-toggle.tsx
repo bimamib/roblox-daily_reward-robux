@@ -13,19 +13,22 @@ export function ThemeToggle() {
   useEffect(() => {
     const saved = window.localStorage.getItem("rbxdaily-theme");
     const nextTheme: Theme = saved === "light" ? "light" : "dark";
-    document.documentElement.classList.toggle("light", nextTheme === "light");
-    document.documentElement.dataset.theme = nextTheme;
-    document.documentElement.dataset.theme = nextTheme;
-    document.documentElement.style.colorScheme = nextTheme;
+    applyTheme(nextTheme);
     setTheme(nextTheme);
     setReady(true);
   }, []);
 
+  function applyTheme(nextTheme: Theme) {
+    const root = document.documentElement;
+    root.classList.toggle("light", nextTheme === "light");
+    root.dataset.theme = nextTheme;
+    root.style.colorScheme = nextTheme;
+    window.localStorage.setItem("rbxdaily-theme", nextTheme);
+  }
+
   function toggleTheme() {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
-    document.documentElement.classList.toggle("light", nextTheme === "light");
-    document.documentElement.style.colorScheme = nextTheme;
-    window.localStorage.setItem("rbxdaily-theme", nextTheme);
+    applyTheme(nextTheme);
     setTheme(nextTheme);
   }
 
