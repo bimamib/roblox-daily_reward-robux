@@ -501,13 +501,6 @@ html {
   scrollbar-gutter: stable;
 }
 
-.navbar,
-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
 .navbar-scroll {
   scrollbar-width: thin;
   scrollbar-color: #777184 transparent;
@@ -649,4 +642,86 @@ select {
 [role="listbox"] [role="option"][aria-selected="true"] {
   background: var(--accent) !important;
   color: #fff !important;
+}
+
+/* Responsive and theme synchronization fixes */
+html,
+body,
+body > div,
+main,
+main section,
+[data-slot="card"],
+[data-slot="trigger"],
+[data-slot="popover"],
+[data-slot="popover-content"],
+[data-slot="input"],
+[data-slot="textarea"] {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 160ms;
+  transition-timing-function: ease;
+}
+
+/* Keep sticky positioning exclusive to the actual site navigation. */
+.site-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+/* Mobile layout safety: prevent horizontal overflow and cramped controls. */
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  main {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .attendance-row {
+    align-items: stretch;
+  }
+
+  [data-slot="trigger"] {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  [data-slot="popover"],
+  [data-slot="popover-content"] {
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .map-card {
+    box-shadow: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-grid h1 {
+    font-size: clamp(2rem, 10vw, 3.25rem);
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  .map-card,
+  [data-slot="card"] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .attendance-row > *,
+  .dashboard-section,
+  .dashboard-section > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .site-navbar > div {
+    gap: 0.65rem;
+    padding-inline: 0.7rem;
+  }
 }
