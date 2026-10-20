@@ -18,8 +18,17 @@ export function ThemeToggle() {
     setReady(true);
   }, []);
 
-  function applyTheme(nextTheme: Theme) {
+  function applyTheme(nextTheme: Theme, animate = false) {
     const root = document.documentElement;
+
+    if (animate) {
+      // Enable color transitions only for the short theme-change window.
+      root.classList.remove("theme-transition");
+      void root.offsetWidth;
+      root.classList.add("theme-transition");
+      window.setTimeout(() => root.classList.remove("theme-transition"), 280);
+    }
+
     root.classList.toggle("light", nextTheme === "light");
     root.dataset.theme = nextTheme;
     root.style.colorScheme = nextTheme;
@@ -28,7 +37,7 @@ export function ThemeToggle() {
 
   function toggleTheme() {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
-    applyTheme(nextTheme);
+    applyTheme(nextTheme, true);
     setTheme(nextTheme);
   }
 
