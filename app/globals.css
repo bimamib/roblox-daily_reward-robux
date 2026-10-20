@@ -192,44 +192,39 @@ textarea:-webkit-autofill:focus {
    HEROUI SELECT — POPOVER AND OPTIONS
    ========================================================= */
 
-/*
- * Popover dapat dirender melalui portal di luar komponen
- * Select. Karena itu, selector tidak dibatasi oleh parent.
- */
-
+/* One clean surface only: avoid nested/double borders on the listbox. */
 [data-slot="popover"],
-[data-slot="popover-content"],
-[data-slot="listbox"],
-[role="listbox"] {
-  background: var(--surface) !important;
+[data-slot="popover-content"] {
+  background: var(--input-bg) !important;
   color: var(--text) !important;
-  border: 1px solid var(--border) !important;
+  border: 0 !important;
   border-radius: 1rem !important;
   outline: none !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14) !important;
+  overflow: hidden;
 }
 
-/* HeroUI v3 select popovers can render in a portal, so target them globally. */
-[data-slot="popover"]:focus,
-[data-slot="popover"]:focus-visible,
-[data-slot="popover-content"]:focus,
-[data-slot="popover-content"]:focus-visible {
-  outline: none !important;
-  border-color: var(--border) !important;
-}
-
-[data-slot="popover"] [data-slot="listbox"],
-[data-slot="popover-content"] [data-slot="listbox"],
-[role="listbox"] [role="option"] {
+[data-slot="listbox"],
+[role="listbox"] {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
   border: 0 !important;
+  border-radius: 0.85rem !important;
+  outline: none !important;
   box-shadow: none !important;
+  padding: 0.25rem !important;
 }
 
 [role="option"],
 [data-slot="listbox"] [data-key] {
-  background-color: transparent !important;
+  min-height: 2.5rem;
+  padding-inline: 0.75rem;
+  border: 0 !important;
+  border-radius: 0.7rem !important;
+  background: transparent !important;
   color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
+  box-shadow: none !important;
 }
 
 [role="option"] *,
@@ -238,28 +233,20 @@ textarea:-webkit-autofill:focus {
   -webkit-text-fill-color: inherit !important;
 }
 
-[role="option"],
-[data-slot="listbox"] [data-key] {
-  border-radius: 0.75rem !important;
-  min-height: 2.5rem;
-  padding-inline: 0.75rem;
-}
-
-/* Hover dan keyboard focus */
 [role="option"]:hover,
 [role="option"][data-focused="true"],
 [role="option"][data-focus="true"],
-[data-slot="listbox"] [data-key]:hover {
-  background-color: var(--surface-hover) !important;
+[data-slot="listbox"] [data-key]:hover,
+[data-slot="listbox"] [data-key][data-focused="true"] {
+  background: var(--surface-hover) !important;
   color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
 }
 
-/* Selected option */
 [role="option"][aria-selected="true"],
 [role="option"][data-selected="true"],
 [data-slot="listbox"] [data-key][data-selected="true"] {
-  background-color: var(--accent) !important;
+  background: var(--accent) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -526,13 +513,13 @@ html {
 }
 
 /* =========================================================
-   CONSISTENT THEME + FORM CONTROLS
+   HEROUI THEME TOKENS + CONSISTENT CONTROLS
    ========================================================= */
 html.light {
   --heroui-background: #f5f6fa;
   --heroui-foreground: #171923;
   --heroui-content1: #ffffff;
-  --heroui-content2: #f0f2f7;
+  --heroui-content2: #eef0f5;
   --heroui-content3: #e9ecf3;
   --heroui-content4: #dfe3ec;
   --heroui-default-50: #f8f9fc;
@@ -566,7 +553,7 @@ html:not(.light) {
   --heroui-default-900: #f5f5f7;
 }
 
-/* Native controls that remain in admin forms use the same theme tokens. */
+/* Native controls and HeroUI fields share exactly the same surface tokens. */
 select,
 input:not(
   [type="checkbox"],
@@ -587,78 +574,53 @@ select {
   background-color: var(--input-bg);
 }
 
-/* The map detail cover intentionally has no drop shadow or blur decoration. */
-.map-detail-cover {
-  box-shadow: none !important;
-}
-
-/* Final, theme-aware overrides for HeroUI v3 select surfaces. */
+/* Keep only one border around each Select trigger; popup/listbox has no frame. */
 [data-slot="trigger"] {
   background: var(--input-bg) !important;
+  color: var(--text) !important;
   border: 1px solid var(--input-border) !important;
   border-radius: 1rem !important;
   box-shadow: none !important;
 }
 
-[data-slot="popover"],
-[data-slot="popover-content"] {
-  background: var(--input-bg) !important;
-  border: 0 !important;
-  border-radius: 1rem !important;
-  outline: 0 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16) !important;
-  overflow: hidden;
-}
-
-[data-slot="popover"] [data-slot="listbox"],
-[data-slot="popover-content"] [data-slot="listbox"],
-[data-slot="listbox"] {
-  background: var(--input-bg) !important;
-  border: 0 !important;
-  border-radius: 0.8rem !important;
-  box-shadow: none !important;
-  padding: 0.25rem !important;
-}
-
-[data-slot="listbox"] [data-key],
-[data-slot="listbox"] [role="option"],
-[role="listbox"] [role="option"] {
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0.7rem !important;
+[data-slot="trigger"] [data-slot="value"],
+[data-slot="trigger"] [data-slot="value"] * {
   color: var(--text) !important;
-  box-shadow: none !important;
+  -webkit-text-fill-color: var(--text) !important;
 }
 
-[data-slot="listbox"] [data-key]:hover,
-[data-slot="listbox"] [data-key][data-focused="true"],
-[data-slot="listbox"] [role="option"]:hover,
-[role="listbox"] [role="option"]:hover {
-  background: var(--surface-hover) !important;
+[data-slot="popover"],
+[data-slot="popover-content"],
+[data-slot="listbox"],
+[role="listbox"] {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border: 0 !important;
+  outline: 0 !important;
 }
 
-[data-slot="listbox"] [data-key][data-selected="true"],
-[data-slot="listbox"] [role="option"][aria-selected="true"],
-[role="listbox"] [role="option"][aria-selected="true"] {
-  background: var(--accent) !important;
-  color: #fff !important;
-}
-
-/* Responsive and theme synchronization fixes */
+/* Smooth theme transition without animating layout or transforms. */
 html,
 body,
-body > div,
-main,
-main section,
+.site-navbar,
+.map-card,
 [data-slot="card"],
 [data-slot="trigger"],
 [data-slot="popover"],
 [data-slot="popover-content"],
+[data-slot="listbox"],
+[role="listbox"],
 [data-slot="input"],
-[data-slot="textarea"] {
-  transition-property: background-color, border-color, color, box-shadow;
-  transition-duration: 160ms;
-  transition-timing-function: ease;
+[data-slot="textarea"],
+input,
+textarea,
+select,
+label,
+[data-slot="label"] {
+  transition-property:
+    color, background-color, border-color, box-shadow, fill, stroke;
+  transition-duration: 180ms;
+  transition-timing-function: ease-in-out;
 }
 
 /* Keep sticky positioning exclusive to the actual site navigation. */
@@ -695,22 +657,11 @@ main section,
     max-width: calc(100vw - 24px) !important;
   }
 
-  .map-card {
-    box-shadow: none !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .hero-grid h1 {
-    font-size: clamp(2rem, 10vw, 3.25rem);
-    line-height: 1.05;
-    overflow-wrap: anywhere;
-  }
-
   .map-card,
   [data-slot="card"] {
     min-width: 0;
     max-width: 100%;
+    box-shadow: none !important;
   }
 
   .attendance-row > *,
@@ -724,16 +675,6 @@ main section,
     gap: 0.65rem;
     padding-inline: 0.7rem;
   }
-}
-
-/* Smooth theme changes for text and surfaces without animating layout. */
-html,
-body,
-body *:not(svg):not(path):not([data-slot="popover"] *) {
-  transition-property:
-    color, background-color, border-color, fill, stroke, transform, box-shadow;
-  transition-duration: 180ms;
-  transition-timing-function: ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
