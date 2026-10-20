@@ -458,12 +458,12 @@ export function AttendanceClient({
                 }
                 isDisabled={pending}
               >
-                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                <Select.Trigger className="reward-select-trigger w-full rounded-2xl border px-4 py-3 text-sm shadow-none data-[focus-visible=true]:border-violet-500">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-                  <ListBox className="max-h-64 overflow-y-auto rounded-xl bg-content1 p-1 text-foreground">
+                <Select.Popover className="reward-select-popover rounded-2xl p-1 shadow-none">
+                  <ListBox className="reward-select-listbox max-h-64 overflow-y-auto rounded-xl p-1">
                     {Array.from(
                       { length: map.durationDays },
                       (_, index) => index + 1,
@@ -472,7 +472,7 @@ export function AttendanceClient({
                         key={day}
                         id={String(day)}
                         textValue={`Day ${day}`}
-                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                        className="reward-select-option rounded-xl px-3 py-2 text-sm outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
                       >
                         Day {day}
                         {configuredRewards.has(day) ? " · Sudah diatur" : ""}
@@ -494,18 +494,18 @@ export function AttendanceClient({
                 }
                 isDisabled={pending}
               >
-                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                <Select.Trigger className="reward-select-trigger w-full rounded-2xl border px-4 py-3 text-sm shadow-none data-[focus-visible=true]:border-violet-500">
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-                  <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
+                <Select.Popover className="reward-select-popover rounded-2xl p-1 shadow-none">
+                  <ListBox className="reward-select-listbox rounded-xl p-1">
                     {rewardTypes.map((item) => (
                       <ListBox.Item
                         key={item.value}
                         id={item.value}
                         textValue={item.label}
-                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                        className="reward-select-option rounded-xl px-3 py-2 text-sm outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
                       >
                         {item.label}
                         <ListBox.ItemIndicator />
