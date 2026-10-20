@@ -685,3 +685,101 @@ label,
     animation-duration: 0ms !important;
   }
 }
+
+/* =========================================================
+   PERSONAL REWARD SELECTS — SINGLE, THEMED SURFACE
+   ========================================================= */
+.reward-select-trigger,
+[data-slot="trigger"].reward-select-trigger {
+  background-color: var(--input-bg) !important;
+  background-image: none !important;
+  color: var(--text) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 1rem !important;
+  box-shadow: none !important;
+}
+
+.reward-select-trigger:hover,
+.reward-select-trigger:focus,
+.reward-select-trigger[data-focus-visible="true"] {
+  background-color: var(--input-bg) !important;
+  border-color: var(--accent) !important;
+}
+
+.reward-select-popover,
+[data-slot="popover"].reward-select-popover,
+[data-slot="popover-content"].reward-select-popover {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16) !important;
+  padding: 0.25rem !important;
+  overflow: hidden !important;
+}
+
+.reward-select-listbox,
+[data-slot="listbox"].reward-select-listbox,
+.reward-select-popover [role="listbox"] {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  padding: 0.25rem !important;
+}
+
+.reward-select-option,
+.reward-select-listbox [role="option"],
+.reward-select-listbox [data-key] {
+  color: var(--text) !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0.7rem !important;
+}
+
+.reward-select-option[data-focused="true"],
+.reward-select-option[data-focus="true"],
+.reward-select-option[data-selected="true"],
+.reward-select-listbox [role="option"][data-focused="true"],
+.reward-select-listbox [role="option"][aria-selected="true"] {
+  background-color: var(--surface-hover) !important;
+  color: var(--text) !important;
+}
+
+.reward-select-option[data-selected="true"],
+.reward-select-listbox [role="option"][aria-selected="true"] {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+.reward-select-option[data-selected="true"] *,
+.reward-select-listbox [role="option"][aria-selected="true"] * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Apply smooth text and surface color transitions only while changing theme. */
+html.theme-transition,
+html.theme-transition body,
+html.theme-transition body * {
+  transition-property:
+    color,
+    background-color,
+    border-color,
+    box-shadow,
+    fill,
+    stroke,
+    -webkit-text-fill-color !important;
+  transition-duration: 240ms !important;
+  transition-timing-function: ease-in-out !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition body,
+  html.theme-transition body * {
+    transition-duration: 0ms !important;
+  }
+}
