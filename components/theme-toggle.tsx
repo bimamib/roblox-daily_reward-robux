@@ -1,61 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@heroui/react";
 import { Moon, Sun } from "lucide-react";
 
 type Theme = "dark" | "light";
 
-export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [ready, setReady] = useState(false);
+/**
+ * Mengganti tema TANPA transisi.
+ *
+ * Penyebab bug "layar abu-abu / kedip" sebelumnya: tiap elemen punya
+ * `transition` warna sendiri (globals.css + HeroUI), sehingga saat tema
+ * berganti, background / border / teks berubah tidak serempak dan
+ * terlihat frame abu-abu di tengah. Solusinya: matikan semua transisi
+ * selama class `theme-switching` aktif, paksa browser menghitung ulang
+ * style, lalu lepas class tersebut setelah frame berikutnya.
+ */
+function applyTheme(nextTheme: Theme) {
+  const root = document.documentElement;
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem("rbxdaily-theme");
-    const nextTheme: Theme = saved === "light" ? "light" : "dark";
-    applyTheme(nextTheme);
-    setTheme(nextTheme);
-    setReady(true);
-  }, []);
+  root.classList.add("theme-switching");
 
-  function applyTheme(nextTheme: Theme, animate = false) {
-    const root = document.documentElement;
+  root.classList.toggle("light", nextTheme === "light");
+  root.dataset.theme = nextTheme;
+  root.style.colorScheme = nextTheme;
 
-    if (animate) {
-      // Enable color transitions only for the short theme-change window.
-      root.classList.remove("theme-transition");
-      void root.offsetWidth;
-      root.classList.add("theme-transition");
-      window.setTimeout(() => root.classList.remove("theme-transition"), 280);
-    }
-
-    root.classList.toggle("light", nextTheme === "light");
-    root.dataset.theme = nextTheme;
-    root.style.colorScheme = nextTheme;
+  try {
     window.localStorage.setItem("rbxdaily-theme", nextTheme);
+  } catch {
+    // localStorage bisa dinonaktifkan; tema tetap berganti untuk sesi ini.
   }
 
+  // Paksa reflow supaya style baru dihitung saat transisi masih mati.
+  void root.offsetHeight;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      root.classList.remove("theme-switching");
+    });
+  });
+}
+
+export function ThemeToggle() {
   function toggleTheme() {
-    const nextTheme: Theme = theme === "dark" ? "light" : "dark";
-    applyTheme(nextTheme, true);
-    setTheme(nextTheme);
+    const isLight = document.documentElement.classList.contains("light");
+    applyTheme(isLight ? "dark" : "light");
   }
 
+  // Ikon ditentukan CSS (html.light), bukan state React, sehingga tidak ada
+  // ikon yang salah / kedip sebelum hydration selesai.
   return (
-    <Button
+    <button
       type="button"
-      isIconOnly
-      variant="secondary"
-      size="md"
-      aria-label={
-        ready
-          ? `Aktifkan mode ${theme === "dark" ? "terang" : "gelap"}`
-          : "Ubah tema"
-      }
-      onPress={toggleTheme}
-      className="shrink-0 rounded-full border border-default-200 bg-content1 text-foreground"
+      className="nav-icon-btn nav-icon-btn--outline"
+      aria-label="Ubah tema"
+      title="Ubah tema"
+      onClick={toggleTheme}
     >
-      {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-    </Button>
+      <Sun size={18} className="theme-icon-sun" aria-hidden="true" />
+      <Moon size={18} className="theme-icon-moon" aria-hidden="true" />
+    </button>
   );
 }
