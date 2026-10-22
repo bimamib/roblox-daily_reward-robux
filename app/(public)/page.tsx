@@ -49,8 +49,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <main>
       <section className="hero-grid border-b border-white/10">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="mb-3 font-bold uppercase tracking-[.2em] text-violet-400">
+        {/* Jarak atas & padding samping disamakan dengan halaman Dashboard
+            (pt-7 sm:pt-10, px-4 sm:px-6). */}
+        <div className="mx-auto max-w-6xl px-4 pb-12 pt-7 sm:px-6 sm:pb-16 sm:pt-10">
+          <p className="mb-4 text-base font-bold uppercase leading-4 tracking-[.2em] text-violet-400">
             Roblox Reward Tracker
           </p>
 
@@ -66,7 +68,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <HomeFilters search={search} duration={duration} />
 
         <div className="mb-5 flex items-end justify-between">
