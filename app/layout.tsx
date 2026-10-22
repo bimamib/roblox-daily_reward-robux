@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Script from "next/script";
 import "./globals.css";
 
 import { Providers } from "@/components/providers";
@@ -20,6 +19,10 @@ export const metadata: Metadata = {
   title: "RbxDaily — Roblox Reward Tracker",
   description: "Tracker absensi map Roblox dengan reward Robux.",
 };
+
+// Dijalankan sinkron di <head> sebelum halaman pertama dicat, sehingga tema
+// & status sidebar sudah benar sejak frame pertama (tanpa kilatan gelap/terang).
+const themeInitScript = `try { var root = document.documentElement; var savedTheme = localStorage.getItem("rbxdaily-theme"); var initialTheme = savedTheme === "light" ? "light" : "dark"; root.classList.toggle("light", initialTheme === "light"); root.dataset.theme = initialTheme; root.style.colorScheme = initialTheme; root.dataset.sidebar = localStorage.getItem("rbxdaily-sidebar") === "collapsed" ? "collapsed" : "expanded"; } catch (_) { document.documentElement.dataset.sidebar = "expanded"; }`;
 
 async function getViewer(): Promise<Viewer> {
   const supabase = await createClient();
@@ -62,9 +65,10 @@ export default async function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
-        <Script id="rbxdaily-theme-init" strategy="beforeInteractive">
-          {`try { var root = document.documentElement; var savedTheme = localStorage.getItem("rbxdaily-theme"); var initialTheme = savedTheme === "light" ? "light" : "dark"; root.classList.toggle("light", initialTheme === "light"); root.dataset.theme = initialTheme; root.style.colorScheme = initialTheme; root.dataset.sidebar = localStorage.getItem("rbxdaily-sidebar") === "collapsed" ? "collapsed" : "expanded"; } catch (_) { document.documentElement.dataset.sidebar = "expanded"; }`}
-        </Script>
+        <script
+          id="rbxdaily-theme-init"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
       </head>
       <body className={sfPro.className}>
         <Providers>
