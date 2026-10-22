@@ -16,6 +16,8 @@ interface HomeFiltersProps {
 
 export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
   return (
+    // items-end: ketiga kontrol (input, select, tombol) rata di garis bawah.
+    // Tinggi input, trigger Select, dan tombol .field-btn sama persis (46px).
     <form
       method="GET"
       action="/"
@@ -24,10 +26,7 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
       <TextField name="search" defaultValue={search}>
         <Label className="rounded-xl text-foreground">Cari map</Label>
 
-        <Input
-          placeholder="Nama map atau creator"
-          className="rounded-xl text-foreground"
-        />
+        <Input placeholder="Nama map atau creator" />
       </TextField>
 
       <Select
@@ -37,7 +36,7 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
       >
         <Label className="rounded-xl text-foreground">Durasi</Label>
 
-        <Select.Trigger className="rounded-2xl border border-default-200 bg-content1 text-foreground shadow-none">
+        <Select.Trigger>
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
@@ -79,7 +78,7 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
         </Select.Popover>
       </Select>
 
-      <Button type="submit" variant="primary" className="skeuo-btn">
+      <Button type="submit" variant="primary" className="skeuo-btn field-btn">
         Cari
       </Button>
     </form>
