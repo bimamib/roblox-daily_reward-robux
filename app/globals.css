@@ -925,10 +925,14 @@ html:not(.light) {
   .app-sidebar {
     position: fixed;
     top: 0;
-    bottom: 0;
     left: 0;
+    align-self: auto;
     width: min(18rem, 85vw);
-    height: auto;
+    /* Tinggi eksplisit setinggi layar: footer (user + Logout) menempel
+       di dasar layar seperti Orvix, bukan mengikuti tinggi konten. */
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     transform: translateX(-100%);
     visibility: hidden;
     transition:
@@ -957,6 +961,200 @@ html:not(.light) {
   .navbar-logo {
     display: inline-block;
   }
+
+  .sb-nav {
+    overscroll-behavior: contain;
+  }
+
+  .sb-item {
+    min-height: 2.75rem;
+  }
+
+  .sb-footer {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* =========================================================
+   BUTTONS (pill) — dipakai di halaman admin
+   ========================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0 1.1rem;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    filter 0.15s ease,
+    transform 0.1s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn-icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+}
+
+.btn-primary {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: linear-gradient(180deg, #9b82ff 0%, #7657e8 100%);
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 0 rgba(54, 38, 125, 0.8);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.07);
+}
+
+.btn-secondary {
+  border-color: var(--input-border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+  color: var(--accent);
+}
+
+.btn-danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.btn-danger:hover {
+  border-color: #ef4444;
+  background: #ef4444;
+  color: #ffffff;
+}
+
+html.light .btn-danger {
+  color: #dc2626;
+}
+
+html.light .btn-danger:hover {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ADMIN — DAFTAR MAP
+   ========================================================= */
+
+.admin-map-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--surface);
+}
+
+.admin-map-info {
+  min-width: 0;
+  flex: 1 1 14rem;
+}
+
+.admin-map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-map-actions form {
+  margin: 0;
+}
+
+/* Desktop: pembungkus tidak membuat kotak, badge tetap sejajar tombol.
+   Mobile: badge mendapat baris sendiri (lihat media query di bawah). */
+.admin-map-status {
+  display: contents;
+}
+
+@media (max-width: 640px) {
+  .admin-map-row {
+    padding: 0.9rem;
+  }
+
+  .admin-map-actions {
+    width: 100%;
+  }
+
+  .admin-map-actions > .btn,
+  .admin-map-actions > form {
+    flex: 1 1 0%;
+  }
+
+  .admin-map-actions > form > .btn {
+    width: 100%;
+  }
+
+  .admin-map-status {
+    display: block;
+    flex: 0 0 100%;
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  width: fit-content;
+  min-height: 1.75rem;
+  padding: 0 0.75rem;
+  border-radius: 9999px;
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill--active {
+  background: rgba(34, 197, 94, 0.14);
+  color: #22c55e;
+}
+
+.status-pill--pending {
+  background: rgba(245, 158, 11, 0.14);
+  color: #f59e0b;
+}
+
+html.light .status-pill--active {
+  color: #15803d;
+}
+
+html.light .status-pill--pending {
+  color: #b45309;
 }
 
 /* =========================================================
