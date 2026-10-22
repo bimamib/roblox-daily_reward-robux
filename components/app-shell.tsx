@@ -89,16 +89,25 @@ export function AppShell({
     setMobileOpen(false);
   }, [pathname]);
 
-  // Tutup drawer dengan tombol Escape.
+  // Saat drawer terbuka: tutup dengan Escape dan kunci scroll halaman
+  // di belakangnya (seperti Orvix).
   useEffect(() => {
     if (!mobileOpen) return;
+
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setMobileOpen(false);
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    return () => {
+      root.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
   }, [mobileOpen]);
 
   // Tutup drawer jika layar melebar ke ukuran desktop.
