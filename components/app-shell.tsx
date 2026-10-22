@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  Gift,
   LayoutDashboard,
   ListChecks,
   LogIn,
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandMark } from "@/components/brand-mark";
 
 export type Viewer = {
   displayName: string;
@@ -158,7 +158,7 @@ export function AppShell({
             title="RbxDaily"
           >
             <span className="sb-brand-mark" aria-hidden="true">
-              <Gift size={18} />
+              <BrandMark size={32} />
             </span>
             <span className="sb-label sb-brand-text">
               Rbx<span>Daily</span>
