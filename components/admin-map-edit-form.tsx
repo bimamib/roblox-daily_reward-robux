@@ -31,12 +31,28 @@ type AdminMapEditFormProps = {
   ) => Promise<void>;
 };
 
+/**
+ * Catatan penting (sumber error "both value and defaultValue"):
+ * <TextField> dari HeroUI/React Aria sudah mengelola `value` untuk <Input>
+ * di dalamnya. Jika <Input defaultValue=...> dipakai di dalam <TextField>,
+ * input mendapat `value` DAN `defaultValue` sekaligus -> React error, dan
+ * kolom tampil kosong. Karena itu `defaultValue` diberikan ke <TextField>,
+ * bukan ke <Input>.
+ */
 export function AdminMapEditForm({
   map,
   rewards,
   updateMapAdminAction,
   saveRewardsAction,
 }: AdminMapEditFormProps) {
+  const rewardByDay = new Map(
+    rewards.map((reward) => [reward.dayNumber, reward]),
+  );
+  const days = Array.from(
+    { length: map.durationDays },
+    (_, index) => index + 1,
+  );
+
   return (
     <>
       {/* Map Information */}
@@ -46,29 +62,29 @@ export function AdminMapEditForm({
       >
         <input type="hidden" name="id" value={map.id} />
 
-        <TextField name="name">
+        <TextField name="name" defaultValue={map.name}>
           <Label>Map name</Label>
-          <Input defaultValue={map.name} />
+          <Input />
         </TextField>
 
-        <TextField name="creatorName">
+        <TextField name="creatorName" defaultValue={map.creatorName}>
           <Label>Creator</Label>
-          <Input defaultValue={map.creatorName} />
+          <Input />
         </TextField>
 
-        <TextField name="robloxUrl">
+        <TextField name="robloxUrl" defaultValue={map.robloxUrl}>
           <Label>Roblox URL</Label>
-          <Input defaultValue={map.robloxUrl} />
+          <Input />
         </TextField>
 
-        <TextField name="durationDays">
+        <TextField name="durationDays" defaultValue={String(map.durationDays)}>
           <Label>Duration</Label>
-          <Input type="number" defaultValue={String(map.durationDays)} />
+          <Input type="number" />
         </TextField>
 
-        <TextField name="phaseNumber">
+        <TextField name="phaseNumber" defaultValue={String(map.phaseNumber)}>
           <Label>Phase</Label>
-          <Input type="number" defaultValue={String(map.phaseNumber)} />
+          <Input type="number" />
         </TextField>
 
         <div className="md:col-span-2">
@@ -81,25 +97,20 @@ export function AdminMapEditForm({
       {/* Daily Rewards */}
       <form
         action={async (fd) => {
-          const rewardsData = Array.from(
-            { length: map.durationDays },
-            (_, index) => {
-              const dayNumber = index + 1;
-              const amount = Number(fd.get(`amount-${dayNumber}`) || 0);
+          const rewardsData = days.map((dayNumber) => {
+            const amount = Number(fd.get(`amount-${dayNumber}`) || 0);
 
-              const title = String(
-                fd.get(`title-${dayNumber}`) || "Regular Reward",
-              );
+            const title = String(
+              fd.get(`title-${dayNumber}`) || "Regular Reward",
+            );
 
-              return {
-                dayNumber,
-                amount,
-                title,
-                rewardType:
-                  amount > 0 ? ("ROBUX" as const) : ("OTHER" as const),
-              };
-            },
-          );
+            return {
+              dayNumber,
+              amount,
+              title,
+              rewardType: amount > 0 ? ("ROBUX" as const) : ("OTHER" as const),
+            };
+          });
 
           await saveRewardsAction(map.id, rewardsData);
         }}
@@ -107,24 +118,34 @@ export function AdminMapEditForm({
       >
         <h2 className="text-2xl font-black">Daily Rewards</h2>
 
-        {rewards.map((reward) => (
-          <div
-            key={reward.id}
-            className="grid gap-3 rounded-xl border border-white/10 p-3 md:grid-cols-[90px_1fr_160px]"
-          >
-            <div className="font-black">Day {reward.dayNumber}</div>
+        {days.map((day) => {
+          const reward = rewardByDay.get(day);
 
-            <TextField name={`title-${reward.dayNumber}`}>
-              <Label>Title</Label>
-              <Input defaultValue={reward.title ?? "Regular Reward"} />
-            </TextField>
+          return (
+            <div
+              key={day}
+              className="grid gap-3 rounded-xl border border-white/10 p-3 md:grid-cols-[90px_1fr_160px]"
+            >
+              <div className="font-black">Day {day}</div>
 
-            <TextField name={`amount-${reward.dayNumber}`}>
-              <Label>Robux</Label>
-              <Input type="number" defaultValue={String(reward.amount)} />
-            </TextField>
-          </div>
-        ))}
+              <TextField
+                name={`title-${day}`}
+                defaultValue={reward?.title ?? "Regular Reward"}
+              >
+                <Label>Title</Label>
+                <Input />
+              </TextField>
+
+              <TextField
+                name={`amount-${day}`}
+                defaultValue={String(reward?.amount ?? 0)}
+              >
+                <Label>Robux</Label>
+                <Input type="number" />
+              </TextField>
+            </div>
+          );
+        })}
 
         <Button type="submit" className="skeuo-btn">
           Save rewards
