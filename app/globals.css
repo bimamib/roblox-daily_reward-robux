@@ -789,6 +789,7 @@ html:not(.light) {
   height: 2rem;
 }
 
+.sb-brand-mark img,
 .sb-brand-mark svg {
   display: block;
   width: 100%;
