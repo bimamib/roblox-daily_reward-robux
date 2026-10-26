@@ -11,6 +11,16 @@ import {
   deleteUserMapRewardAction,
   resetMapProgressAction,
 } from "@/actions/attendance";
+import { useDialogs } from "@/components/dialog-provider";
+import {
+  inputClass,
+  listBoxClass,
+  optionClass,
+  popoverClass,
+  selectTriggerClass,
+  skeuoButton,
+  textareaClass,
+} from "@/lib/ui";
 
 type RewardType = "ROBUX" | "COIN" | "ITEM" | "XP" | "SPIN" | "OTHER";
 type DeliveryStatus = "NOT_APPLICABLE" | "NOT_SENT" | "PENDING" | "SENT";
@@ -66,9 +76,6 @@ const rewardTypes: { value: RewardType; label: string }[] = [
   { value: "OTHER", label: "Lainnya" },
 ];
 
-const fieldClass =
-  "w-full min-w-0 rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-default-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/15 disabled:cursor-not-allowed disabled:opacity-60";
-
 const labelClass = "block w-full min-w-0 space-y-2 text-sm font-medium";
 
 function formatNumber(value: number) {
@@ -85,10 +92,11 @@ export function AttendanceClient({
   userRewards: UserReward[];
 }) {
   const router = useRouter();
+  const { confirm, notify } = useDialogs();
 
   // `busyKey` = aksi yang sedang berjalan. Hanya tombol dari aksi itu yang
-  // dinonaktifkan; tombol & field lain TIDAK ikut meredup (sumber flicker
-  // sebelumnya). `busyRef` mencegah klik ganda sebelum state sempat update.
+  // dinonaktifkan; tombol & field lain tidak ikut meredup. `busyRef` mencegah
+  // klik ganda sebelum state sempat diperbarui.
   const busyRef = useRef(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
 
@@ -194,9 +202,9 @@ export function AttendanceClient({
   }, [selectedDay, selectedRewardSignature]);
 
   /**
-   * Menjalankan server action TANPA reload halaman.
-   * Server action sudah memanggil revalidatePath(), dan router.refresh()
-   * memastikan data terbaru tampil — semuanya tanpa kilatan layar.
+   * Menjalankan server action TANPA reload halaman. Server action sudah
+   * memanggil revalidatePath(), dan router.refresh() memastikan data terbaru
+   * tampil — semuanya tanpa kilatan layar.
    */
   async function runAction(
     key: string,
@@ -208,14 +216,24 @@ export function AttendanceClient({
     busyRef.current = true;
     setBusyKey(key);
 
+    let failure: string | null = null;
+
     try {
       await action();
       router.refresh();
     } catch (error) {
-      alert(error instanceof Error ? error.message : fallback);
+      failure = error instanceof Error ? error.message : fallback;
     } finally {
       busyRef.current = false;
       setBusyKey(null);
+    }
+
+    if (failure) {
+      await notify({
+        title: "Terjadi kesalahan",
+        description: failure,
+        tone: "danger",
+      });
     }
   }
 
@@ -229,34 +247,46 @@ export function AttendanceClient({
     );
   }
 
-  function handleRestart() {
-    if (!window.confirm("Mulai ulang streak? Riwayat lama tetap disimpan.")) {
-      return;
-    }
+  async function handleRestart() {
+    const ok = await confirm({
+      title: "Mulai ulang streak?",
+      description: "Riwayat lama tetap disimpan.",
+      confirmLabel: "Mulai ulang",
+      tone: "warning",
+    });
 
-    void runAction(
+    if (!ok) return;
+
+    await runAction(
       "restart",
       () => restartTrackerAction(map.id),
       "Gagal memulai ulang streak.",
     );
   }
 
-  function handleSaveReward(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSaveReward(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!title.trim()) {
-      alert("Judul reward wajib diisi.");
+      await notify({
+        title: "Judul reward wajib diisi",
+        tone: "warning",
+      });
       return;
     }
 
     const parsedAmount = Number(amount);
 
     if (!Number.isFinite(parsedAmount) || parsedAmount < 0) {
-      alert("Nominal reward harus berupa angka nol atau lebih.");
+      await notify({
+        title: "Nominal tidak valid",
+        description: "Nominal reward harus berupa angka nol atau lebih.",
+        tone: "warning",
+      });
       return;
     }
 
-    void runAction(
+    await runAction(
       "save",
       () =>
         saveUserMapRewardAction({
@@ -271,14 +301,19 @@ export function AttendanceClient({
     );
   }
 
-  function handleDeleteReward() {
+  async function handleDeleteReward() {
     if (!selectedReward) return;
 
-    if (!window.confirm(`Hapus konfigurasi reward Day ${selectedDay}?`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: `Hapus reward Day ${selectedDay}?`,
+      description: "Konfigurasi reward untuk hari ini akan dihapus.",
+      confirmLabel: "Hapus reward",
+      tone: "danger",
+    });
 
-    void runAction(
+    if (!ok) return;
+
+    await runAction(
       "delete",
       () => deleteUserMapRewardAction(map.id, Number(selectedDay)),
       "Gagal menghapus reward.",
@@ -327,16 +362,18 @@ export function AttendanceClient({
       : reward.title;
   }
 
-  function handleResetMapProgress() {
-    const confirmed = window.confirm(
-      "PERINGATAN: Semua riwayat absensi dan klaim untuk map ini akan dihapus. " +
-        "Cycle akan kembali ke #1. Konfigurasi reward pribadi tetap tersimpan. " +
-        "Tindakan ini tidak dapat dibatalkan. Lanjutkan?",
-    );
+  async function handleResetMapProgress() {
+    const ok = await confirm({
+      title: "Reset semua progres map ini?",
+      description:
+        "Semua riwayat absensi dan klaim untuk map ini akan dihapus dan cycle kembali ke #1. Konfigurasi reward pribadi tetap tersimpan. Tindakan ini tidak dapat dibatalkan.",
+      confirmLabel: "Reset progres",
+      tone: "danger",
+    });
 
-    if (!confirmed) return;
+    if (!ok) return;
 
-    void runAction(
+    await runAction(
       "reset",
       () => resetMapProgressAction(map.id),
       "Gagal mereset progres map.",
@@ -349,6 +386,7 @@ export function AttendanceClient({
       <section className="rounded-3xl border border-default-200/70 bg-content1 p-4 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <Button
+            variant="primary"
             isDisabled={
               busyKey === "checkin" ||
               hasCheckedInToday ||
@@ -356,7 +394,7 @@ export function AttendanceClient({
               tracker?.status === "ABANDONED"
             }
             onPress={handleCheckIn}
-            className="skeuo-btn w-full sm:w-auto"
+            className={`${skeuoButton("primary")} w-full sm:w-auto`}
           >
             {isCompleted
               ? "Streak Selesai"
@@ -369,8 +407,8 @@ export function AttendanceClient({
             <Button
               variant="secondary"
               isDisabled={busyKey === "restart"}
-              onPress={handleRestart}
-              className="w-full sm:w-auto"
+              onPress={() => void handleRestart()}
+              className={`${skeuoButton("secondary")} w-full sm:w-auto`}
             >
               Mulai Ulang Streak
             </Button>
@@ -381,8 +419,8 @@ export function AttendanceClient({
               type="button"
               variant="secondary"
               isDisabled={busyKey === "reset"}
-              onPress={handleResetMapProgress}
-              className="w-full sm:w-auto"
+              onPress={() => void handleResetMapProgress()}
+              className={`${skeuoButton("secondary")} w-full sm:w-auto`}
             >
               Reset Data Testing
             </Button>
@@ -494,7 +532,10 @@ export function AttendanceClient({
           </p>
         </div>
 
-        <form onSubmit={handleSaveReward} className="min-w-0 space-y-4">
+        <form
+          onSubmit={(event) => void handleSaveReward(event)}
+          className="min-w-0 space-y-4"
+        >
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
             <div className={labelClass}>
               <Label>Hari reward</Label>
@@ -505,12 +546,12 @@ export function AttendanceClient({
                   key != null && setSelectedDay(String(key))
                 }
               >
-                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                <Select.Trigger className={selectTriggerClass}>
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-                  <ListBox className="max-h-64 overflow-y-auto rounded-xl bg-content1 p-1 text-foreground">
+                <Select.Popover className={popoverClass}>
+                  <ListBox className={listBoxClass}>
                     {Array.from(
                       { length: map.durationDays },
                       (_, index) => index + 1,
@@ -519,7 +560,7 @@ export function AttendanceClient({
                         key={day}
                         id={String(day)}
                         textValue={`Day ${day}`}
-                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                        className={optionClass}
                       >
                         Day {day}
                         {configuredRewards.has(day) ? " · Sudah diatur" : ""}
@@ -540,18 +581,18 @@ export function AttendanceClient({
                   key != null && setRewardType(String(key) as RewardType)
                 }
               >
-                <Select.Trigger className="w-full rounded-2xl border border-default-200 bg-content1 px-4 py-3 text-sm text-foreground shadow-none data-[focus-visible=true]:border-violet-500">
+                <Select.Trigger className={selectTriggerClass}>
                   <Select.Value />
                   <Select.Indicator />
                 </Select.Trigger>
-                <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-                  <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
+                <Select.Popover className={popoverClass}>
+                  <ListBox className={listBoxClass}>
                     {rewardTypes.map((item) => (
                       <ListBox.Item
                         key={item.value}
                         id={item.value}
                         textValue={item.label}
-                        className="rounded-xl px-3 py-2 text-sm text-foreground outline-none data-[focused=true]:bg-default-100 data-[selected=true]:bg-violet-500 data-[selected=true]:text-white"
+                        className={optionClass}
                       >
                         {item.label}
                         <ListBox.ItemIndicator />
@@ -565,7 +606,7 @@ export function AttendanceClient({
             <label className={labelClass}>
               <span>Nominal reward</span>
               <input
-                className={fieldClass}
+                className={inputClass}
                 type="number"
                 min="0"
                 step="1"
@@ -581,7 +622,7 @@ export function AttendanceClient({
             <label className={labelClass}>
               <span>Judul reward</span>
               <input
-                className={fieldClass}
+                className={inputClass}
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Contoh: Bonus harian"
@@ -594,7 +635,7 @@ export function AttendanceClient({
           <label className={labelClass}>
             <span>Deskripsi (opsional)</span>
             <textarea
-              className={`${fieldClass} resize-y`}
+              className={textareaClass}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Catatan tentang reward ini"
@@ -606,8 +647,9 @@ export function AttendanceClient({
           <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
             <Button
               type="submit"
+              variant="primary"
               isDisabled={busyKey === "save"}
-              className="w-full sm:w-auto"
+              className={`${skeuoButton("primary")} w-full sm:w-auto`}
             >
               {selectedReward ? "Simpan Perubahan" : "Tambah Reward"}
             </Button>
@@ -617,8 +659,8 @@ export function AttendanceClient({
                 type="button"
                 variant="secondary"
                 isDisabled={busyKey === "delete"}
-                onPress={handleDeleteReward}
-                className="w-full sm:w-auto"
+                onPress={() => void handleDeleteReward()}
+                className={`${skeuoButton("secondary")} w-full sm:w-auto`}
               >
                 Hapus Reward
               </Button>
@@ -722,7 +764,11 @@ export function AttendanceClient({
                       }
                       isDisabled={busyKey === `delivery-${claim.id}`}
                       onPress={() => handleDeliveryStatus(claim)}
-                      className="w-full shrink-0 sm:w-auto"
+                      className={`${skeuoButton(
+                        claim.deliveryStatus === "SENT"
+                          ? "primary"
+                          : "secondary",
+                      )} w-full shrink-0 sm:w-auto`}
                     >
                       {deliveryLabel(claim.deliveryStatus)}
                     </Button>
