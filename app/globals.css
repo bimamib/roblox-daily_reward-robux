@@ -147,8 +147,8 @@ html.light .theme-icon-moon {
    FORM CONTROLS — SATU TAMPILAN UNTUK INPUT, TEXTAREA, SELECT
    Input, textarea, dan trigger Select memakai border, background,
    radius, padding, ukuran font, dan tinggi yang sama persis.
-   Selector sengaja dibuat cukup spesifik agar tidak kalah oleh
-   style bawaan HeroUI maupun aturan `font: inherit` di atas.
+   (:where() = specificity 0, tetapi tetap mengalahkan style
+   HeroUI / utility Tailwind yang berada di @layer.)
    ========================================================= */
 
 label {
@@ -159,20 +159,22 @@ label {
   color: var(--text-secondary) !important;
 }
 
-input:not(
-  [type="checkbox"],
-  [type="radio"],
-  [type="range"],
-  [type="submit"],
-  [type="button"],
-  [type="hidden"],
-  [type="file"]
-),
-textarea,
-[data-slot="trigger"],
-[data-slot="select-trigger"],
-.select__trigger,
-button[aria-haspopup="listbox"] {
+:where(
+  input:not(
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="submit"],
+    [type="button"],
+    [type="hidden"],
+    [type="file"]
+  ),
+  textarea,
+  [data-slot="trigger"],
+  [data-slot="select-trigger"],
+  .select__trigger,
+  button[aria-haspopup="listbox"]
+) {
   min-height: 2.875rem;
   padding: 0.75rem 1rem;
   border: 1px solid var(--input-border);
@@ -183,37 +185,6 @@ button[aria-haspopup="listbox"] {
   outline: none;
   font-size: 0.875rem;
   line-height: 1.25rem;
-}
-
-/* Tinggi PASTI sama (46px) untuk input & trigger Select, sehingga tombol
-   di sebelahnya (.field-btn) bisa dibuat persis sejajar. Textarea dikecualikan
-   karena tingginya mengikuti jumlah baris. */
-input:not(
-  [type="checkbox"],
-  [type="radio"],
-  [type="range"],
-  [type="submit"],
-  [type="button"],
-  [type="hidden"],
-  [type="file"]
-),
-[data-slot="trigger"],
-[data-slot="select-trigger"],
-.select__trigger,
-button[aria-haspopup="listbox"] {
-  height: 2.875rem;
-}
-
-/* Tombol yang sejajar dengan field (mis. tombol "Cari") */
-button.field-btn,
-a.field-btn {
-  height: 2.875rem;
-  min-height: 2.875rem;
-  min-width: 5.5rem;
-  padding-block: 0;
-  padding-inline: 1.5rem;
-  font-size: 0.9375rem;
-  line-height: 1;
 }
 
 /* Fokus seragam untuk semua field */
@@ -784,16 +755,14 @@ html:not(.light) {
 
 .sb-brand-mark {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
   width: 2rem;
   height: 2rem;
-}
-
-.sb-brand-mark img,
-.sb-brand-mark svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+  border-radius: 0.6rem;
+  background: linear-gradient(135deg, #9b82ff 0%, #5b3de0 100%);
+  color: #ffffff;
 }
 
 .sb-nav {
@@ -1186,44 +1155,6 @@ html.light .status-pill--active {
 
 html.light .status-pill--pending {
   color: #b45309;
-}
-
-/* =========================================================
-   PAGE LOADING (app/loading.tsx)
-   Muncul dengan jeda 200ms: navigasi cepat tidak memunculkan
-   kilatan "loading", dan tingginya tetap (tanpa layout jump).
-   ========================================================= */
-
-.page-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - var(--navbar-h));
-  animation: page-loading-in 0.2s ease 0.2s both;
-}
-
-.page-spinner {
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 9999px;
-  animation: page-spin 0.7s linear infinite;
-}
-
-@keyframes page-loading-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes page-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* =========================================================
