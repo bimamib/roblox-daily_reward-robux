@@ -43,8 +43,11 @@ export function SubmitMapForm() {
         <Label>Roblox URL</Label>
         <Input
           className={inputClass}
-          placeholder="https://www.roblox.com/games/..."
+          placeholder="https://www.roblox.com/games/1234567890/Nama-Map"
         />
+        <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+          Salin link dari halaman game di roblox.com. Link lain akan ditolak.
+        </p>
       </TextField>
 
       <Select name="durationDays" placeholder="Pilih durasi" isRequired>
@@ -84,7 +87,7 @@ export function SubmitMapForm() {
         variant="primary"
         className={`${skeuoButton("primary")} w-full`}
       >
-        Kirim untuk review
+        Tambahkan map
       </Button>
     </form>
   );
