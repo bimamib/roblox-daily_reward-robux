@@ -47,6 +47,20 @@ enum DeliveryStatus {
   SENT
 }
 
+enum ReportReason {
+  WRONG_URL
+  SCAM
+  INAPPROPRIATE
+  DUPLICATE
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
 model Profile {
   id          String   @id @db.Uuid
   username    String?  @unique
@@ -61,6 +75,7 @@ model Profile {
   changeLogs     MapChangeLog[]
   submittedMaps  Map[]               @relation("MapSubmitter")
   userMapRewards UserMapReward[]
+  mapReports     MapReport[]
 
   @@map("profiles")
 }
@@ -93,11 +108,13 @@ model Map {
   trackers       AttendanceTracker[]
   changeLogs     MapChangeLog[]
   userMapRewards UserMapReward[]
+  reports        MapReport[]
 
   @@index([status])
   @@index([verificationStatus])
   @@index([durationDays])
   @@index([parentMapId])
+  @@index([robloxPlaceId])
   @@map("maps")
 }
 
@@ -218,4 +235,24 @@ model MapChangeLog {
   @@index([mapId])
   @@index([adminId])
   @@map("map_change_logs")
+}
+
+// Laporan dari pengguna terhadap sebuah map (link salah, phishing, dst.).
+// Satu pengguna hanya bisa punya satu laporan per map.
+model MapReport {
+  id          String       @id @default(uuid()) @db.Uuid
+  mapId       String       @db.Uuid
+  map         Map          @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  reporterId  String       @db.Uuid
+  reporter    Profile      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reason      ReportReason
+  note        String?
+  status      ReportStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+
+  @@unique([mapId, reporterId])
+  @@index([mapId])
+  @@index([status])
+  @@map("map_reports")
 }
