@@ -5,25 +5,29 @@ import { AdminActions } from "@/components/admin-actions";
 export default async function AdminPage() {
   await requireAdmin();
 
-  const [maps, users, pending] = await Promise.all([
+  const [maps, users, pending, reports] = await Promise.all([
     prisma.map.count(),
     prisma.profile.count(),
     prisma.map.count({
       where: { status: "PENDING_REVIEW" },
     }),
+    prisma.mapReport.count({
+      where: { status: "OPEN" },
+    }),
   ]);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl font-black">Admin</h1>
+      <h1 className="text-3xl font-black sm:text-4xl">Admin</h1>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Maps" value={maps} />
         <Stat label="Users" value={users} />
         <Stat label="Pending review" value={pending} />
+        <Stat label="Laporan terbuka" value={reports} />
       </div>
 
-      <div className="mt-8 flex gap-3">
+      <div className="mt-8 flex flex-wrap gap-3">
         <AdminActions />
       </div>
     </main>
@@ -32,8 +36,8 @@ export default async function AdminPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
-      <p className="text-sm text-default-500">{label}</p>
+    <div className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-5">
+      <p className="text-sm text-[color:var(--text-muted)]">{label}</p>
       <p className="text-3xl font-black">{value}</p>
     </div>
   );
