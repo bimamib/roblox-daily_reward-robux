@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Chip } from "@heroui/react";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getMapBySlug } from "@/lib/maps/queries";
+import { linkButton } from "@/lib/ui";
 import { AttendanceClient } from "@/components/attendance-client";
 
 export default async function MapDetailPage({
@@ -85,11 +87,9 @@ export default async function MapDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
-      <Link
-        href="/"
-        className="mb-5 inline-flex items-center gap-2 rounded-full border border-default-200 px-4 py-2 text-sm font-semibold text-default-600 transition hover:border-violet-400 hover:text-violet-500"
-      >
-        ← Kembali ke daftar map
+      <Link href="/" className={`${linkButton("secondary", "sm")} mb-5`}>
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Kembali ke daftar map
       </Link>
 
       <section className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-7">
@@ -234,10 +234,7 @@ export default async function MapDetailPage({
               Pengaturan reward pribadi dan riwayat absensi hanya tersedia
               setelah kamu masuk ke akun.
             </p>
-            <Link
-              href="/login"
-              className="mt-5 inline-flex rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-violet-700"
-            >
+            <Link href="/login" className={`${linkButton("primary")} mt-5`}>
               Masuk ke akun
             </Link>
           </div>
