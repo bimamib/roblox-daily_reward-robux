@@ -7,6 +7,18 @@ import {
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 
+/**
+ * Seed data DEMO — TIDAK dijalankan secara default.
+ *
+ * Supaya database kosong saat deploy (mis. di Vercel), seed ini hanya mengisi
+ * data jika kamu SECARA SENGAJA menjalankannya dengan:
+ *
+ *   SEED_DEMO=true npx prisma db seed        (macOS / Linux)
+ *   $env:SEED_DEMO="true"; npx prisma db seed   (PowerShell)
+ *
+ * Tanpa SEED_DEMO=true, seed hanya mencetak pesan dan berhenti.
+ */
+
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
@@ -68,6 +80,14 @@ const seeds = [
 ];
 
 async function main() {
+  if (process.env.SEED_DEMO !== "true") {
+    console.log(
+      "Seed dilewati: tidak ada data demo yang dibuat. " +
+        "Set SEED_DEMO=true jika memang ingin mengisi data demo (hanya untuk development).",
+    );
+    return;
+  }
+
   for (const item of seeds) {
     await prisma.map.upsert({
       where: { slug: item.slug },
@@ -101,6 +121,13 @@ async function main() {
       },
     });
   }
+
+  console.log(`Data demo dibuat: ${seeds.length} map.`);
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());
