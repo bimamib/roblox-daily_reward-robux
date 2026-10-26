@@ -2,9 +2,9 @@
  * Class bersama untuk seluruh UI (Tailwind lewat className, bukan globals.css).
  *
  * Ukuran mengikuti HeroUI v3:
- *  - tombol : `.button` = h-10 (mobile) / md:h-9 (desktop), text-sm, px-4
- *  - field  : h-10 / md:h-9, text-sm, px-3
- * Input, trigger Select, dan tombol memakai tinggi yang sama, jadi selalu
+ *  - field  : `.input-group` = min-h-9 (36px), text-sm, px-3 (contoh "Email address")
+ *  - tombol : `.button` = h-10 (mobile) / md:h-9 (desktop, 36px), text-sm, px-4
+ * Di layar md ke atas, input, trigger Select, dan tombol sama-sama 36px, jadi
  * sejajar saat berdampingan (mis. baris pencarian di beranda).
  *
  * Gaya HeroUI berada di `@layer components`, sedangkan utility Tailwind di
@@ -50,17 +50,17 @@ export function linkButton(
 }
 
 /* ------------------------------------------------------------------ */
-/* Field                                                               */
+/* Field                                                              */
 /* ------------------------------------------------------------------ */
 
 const fieldBase =
   "w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors focus-visible:border-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent-soft)]";
 
 /** <Input> HeroUI atau <input> biasa. */
-export const inputClass = `h-10 md:h-9 ${fieldBase}`;
+export const inputClass = `h-9 ${fieldBase}`;
 
 /** <Select.Trigger> HeroUI (tinggi sama dengan input). */
-export const selectTriggerClass = `h-10 md:h-9 aria-expanded:border-[color:var(--accent)] ${fieldBase}`;
+export const selectTriggerClass = `h-9 aria-expanded:border-[color:var(--accent)] ${fieldBase}`;
 
 /** <TextArea> HeroUI atau <textarea> biasa. */
 export const textareaClass = `min-h-24 resize-y py-2 ${fieldBase}`;
