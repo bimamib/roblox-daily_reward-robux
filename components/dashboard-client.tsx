@@ -28,6 +28,7 @@ type DashboardTracker = {
     name: string;
     durationDays: number;
     slug?: string;
+    status?: string;
   };
   attendanceLogs: { dayNumber: number }[];
   claims: Claim[];
@@ -297,16 +298,22 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
           </div>
         )}
 
-        {tracker.map.slug && (
-          <div>
-            <Link
-              href={`/maps/${tracker.map.slug}`}
-              className={linkButton("secondary", "sm")}
-            >
-              Buka tracker map →
-            </Link>
-          </div>
-        )}
+        {tracker.map.slug &&
+          (tracker.map.status && tracker.map.status !== "ACTIVE" ? (
+            <p className="text-xs text-default-500">
+              Map ini sedang dinonaktifkan admin sehingga tidak bisa dibuka.
+              Data absensimu tetap tersimpan.
+            </p>
+          ) : (
+            <div>
+              <Link
+                href={`/maps/${tracker.map.slug}`}
+                className={linkButton("secondary", "sm")}
+              >
+                Buka tracker map →
+              </Link>
+            </div>
+          ))}
       </Card.Content>
     </Card>
   );

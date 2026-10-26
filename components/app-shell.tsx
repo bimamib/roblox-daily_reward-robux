@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  Gift,
+  Flag,
   LayoutDashboard,
   ListChecks,
   LogIn,
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "@/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandMark } from "@/components/brand-mark";
 
 export type Viewer = {
   displayName: string;
@@ -42,6 +43,7 @@ const mainNav: NavItem[] = [
 const adminNav: NavItem[] = [
   { href: "/admin", label: "Overview", icon: ShieldCheck },
   { href: "/admin/maps", label: "Kelola Maps", icon: ListChecks },
+  { href: "/admin/reports", label: "Laporan", icon: Flag },
   { href: "/admin/users", label: "Users", icon: Users },
 ];
 
@@ -158,7 +160,7 @@ export function AppShell({
             title="RbxDaily"
           >
             <span className="sb-brand-mark" aria-hidden="true">
-              <Gift size={18} />
+              <BrandMark size={32} />
             </span>
             <span className="sb-label sb-brand-text">
               Rbx<span>Daily</span>
@@ -275,6 +277,18 @@ export function AppShell({
         </header>
 
         {children}
+
+        <footer className="border-t border-[color:var(--border)] px-4 py-6 text-center text-xs leading-5 text-[color:var(--text-muted)] sm:px-6">
+          <p>
+            RbxDaily adalah proyek independen dan tidak berafiliasi dengan
+            Roblox Corporation. “Roblox” dan “Robux” adalah merek dagang milik
+            Roblox Corporation.
+          </p>
+          <p className="mt-1">
+            Kami tidak pernah meminta password, cookie, atau akses ke akun
+            Roblox kamu.
+          </p>
+        </footer>
       </div>
     </div>
   );

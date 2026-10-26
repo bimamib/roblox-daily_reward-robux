@@ -20,6 +20,7 @@ import {
 interface HomeFiltersProps {
   search?: string;
   duration?: string;
+  verifiedOnly?: boolean;
 }
 
 const durationOptions = [
@@ -29,7 +30,11 @@ const durationOptions = [
   { id: "30", label: "30 Hari" },
 ];
 
-export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
+export function HomeFilters({
+  search = "",
+  duration = "",
+  verifiedOnly = false,
+}: HomeFiltersProps) {
   return (
     // md:items-end -> input, select, dan tombol rata di garis bawah.
     // Ketiganya sama tinggi (h-10 / md:h-9, ukuran HeroUI v3), jadi sejajar.
@@ -39,7 +44,7 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
       className="mb-7 grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end"
     >
       <TextField name="search" defaultValue={search}>
-        <Label>Cari map</Label>
+        <Label>Cari Map</Label>
         <Input className={inputClass} placeholder="Nama map atau creator" />
       </TextField>
 
@@ -78,6 +83,17 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
       >
         Cari
       </Button>
+
+      <label className="flex w-fit cursor-pointer items-center gap-2 text-sm md:col-span-3">
+        <input
+          type="checkbox"
+          name="verified"
+          value="1"
+          defaultChecked={verifiedOnly}
+          className="size-4 cursor-pointer accent-violet-500"
+        />
+        Hanya tampilkan map terverifikasi
+      </label>
     </form>
   );
 }
