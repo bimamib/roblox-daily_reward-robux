@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Input, Label, TextField } from "@heroui/react";
+import { inputClass, skeuoButton } from "@/lib/ui";
 
 type Reward = {
   id: string;
@@ -32,12 +33,9 @@ type AdminMapEditFormProps = {
 };
 
 /**
- * Catatan penting (sumber error "both value and defaultValue"):
- * <TextField> dari HeroUI/React Aria sudah mengelola `value` untuk <Input>
- * di dalamnya. Jika <Input defaultValue=...> dipakai di dalam <TextField>,
- * input mendapat `value` DAN `defaultValue` sekaligus -> React error, dan
- * kolom tampil kosong. Karena itu `defaultValue` diberikan ke <TextField>,
- * bukan ke <Input>.
+ * `defaultValue` diberikan ke <TextField>, bukan ke <Input>: TextField sudah
+ * mengelola `value` untuk Input di dalamnya (kalau tidak, muncul error
+ * "both value and defaultValue" dan kolom tampil kosong).
  */
 export function AdminMapEditForm({
   map,
@@ -64,31 +62,31 @@ export function AdminMapEditForm({
 
         <TextField name="name" defaultValue={map.name}>
           <Label>Map name</Label>
-          <Input />
+          <Input className={inputClass} />
         </TextField>
 
         <TextField name="creatorName" defaultValue={map.creatorName}>
           <Label>Creator</Label>
-          <Input />
+          <Input className={inputClass} />
         </TextField>
 
         <TextField name="robloxUrl" defaultValue={map.robloxUrl}>
           <Label>Roblox URL</Label>
-          <Input />
+          <Input className={inputClass} />
         </TextField>
 
         <TextField name="durationDays" defaultValue={String(map.durationDays)}>
           <Label>Duration</Label>
-          <Input type="number" />
+          <Input className={inputClass} type="number" />
         </TextField>
 
         <TextField name="phaseNumber" defaultValue={String(map.phaseNumber)}>
           <Label>Phase</Label>
-          <Input type="number" />
+          <Input className={inputClass} type="number" />
         </TextField>
 
         <div className="md:col-span-2">
-          <Button type="submit" className="skeuo-btn">
+          <Button type="submit" className={skeuoButton("primary")}>
             Save map
           </Button>
         </div>
@@ -124,7 +122,7 @@ export function AdminMapEditForm({
           return (
             <div
               key={day}
-              className="grid gap-3 rounded-xl border border-white/10 p-3 md:grid-cols-[90px_1fr_160px]"
+              className="grid gap-3 rounded-xl border border-[color:var(--border)] p-3 md:grid-cols-[90px_1fr_160px]"
             >
               <div className="font-black">Day {day}</div>
 
@@ -133,7 +131,7 @@ export function AdminMapEditForm({
                 defaultValue={reward?.title ?? "Regular Reward"}
               >
                 <Label>Title</Label>
-                <Input />
+                <Input className={inputClass} />
               </TextField>
 
               <TextField
@@ -141,13 +139,13 @@ export function AdminMapEditForm({
                 defaultValue={String(reward?.amount ?? 0)}
               >
                 <Label>Robux</Label>
-                <Input type="number" />
+                <Input className={inputClass} type="number" />
               </TextField>
             </div>
           );
         })}
 
-        <Button type="submit" className="skeuo-btn">
+        <Button type="submit" className={skeuoButton("primary")}>
           Save rewards
         </Button>
       </form>

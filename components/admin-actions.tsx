@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@heroui/react";
+import { linkButton } from "@/lib/ui";
 
 export function AdminActions() {
   return (
-    <Link href="/admin/maps">
-      <Button className="skeuo-btn">Kelola Maps</Button>
+    <Link href="/admin/maps" className={linkButton("primary")}>
+      Kelola Maps
     </Link>
   );
 }
