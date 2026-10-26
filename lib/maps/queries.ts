@@ -3,11 +3,14 @@ import { prisma } from "@/lib/prisma";
 interface GetActiveMapsOptions {
   search?: string;
   duration?: string;
+  /** true -> hanya map yang sudah diverifikasi admin. */
+  verifiedOnly?: boolean;
 }
 
 export async function getActiveMaps({
   search,
   duration,
+  verifiedOnly = false,
 }: GetActiveMapsOptions = {}) {
   const trimmedSearch = search?.trim();
 
@@ -16,9 +19,11 @@ export async function getActiveMaps({
       ? Number(duration)
       : undefined;
 
-  return prisma.map.findMany({
+  const maps = await prisma.map.findMany({
     where: {
       status: "ACTIVE",
+
+      ...(verifiedOnly ? { verificationStatus: "VERIFIED" } : {}),
 
       ...(trimmedSearch
         ? {
@@ -64,6 +69,14 @@ export async function getActiveMaps({
       publishedAt: "desc",
     },
   });
+
+  // Map terverifikasi tampil lebih dulu. Array.sort bersifat stabil, jadi
+  // urutan terbaru-dulu tetap terjaga di dalam masing-masing kelompok.
+  const rank = (status: string) => (status === "VERIFIED" ? 1 : 0);
+
+  return [...maps].sort(
+    (a, b) => rank(b.verificationStatus) - rank(a.verificationStatus),
+  );
 }
 
 export async function getMapBySlug(slug: string) {
