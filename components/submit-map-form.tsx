@@ -10,68 +10,80 @@ import {
   TextField,
 } from "@heroui/react";
 import { submitMapAction } from "@/actions/maps";
+import {
+  inputClass,
+  listBoxClass,
+  optionClass,
+  popoverClass,
+  selectTriggerClass,
+  skeuoButton,
+  textareaClass,
+} from "@/lib/ui";
+
+const durationOptions = [
+  { id: "7", label: "7 Hari" },
+  { id: "14", label: "14 Hari" },
+  { id: "30", label: "30 Hari" },
+];
 
 export function SubmitMapForm() {
   return (
     <form action={submitMapAction} className="mt-8 space-y-5">
       <TextField name="name" isRequired>
         <Label>Nama map</Label>
-        <Input placeholder="Contoh: Arena Login Pass" />
+        <Input className={inputClass} placeholder="Contoh: Arena Login Pass" />
       </TextField>
 
       <TextField name="creatorName" isRequired>
         <Label>Creator</Label>
-        <Input placeholder="Nama creator Roblox" />
+        <Input className={inputClass} placeholder="Nama creator Roblox" />
       </TextField>
 
       <TextField name="robloxUrl" type="url" isRequired>
         <Label>Roblox URL</Label>
-        <Input placeholder="https://www.roblox.com/games/..." />
+        <Input
+          className={inputClass}
+          placeholder="https://www.roblox.com/games/..."
+        />
       </TextField>
 
       <Select name="durationDays" placeholder="Pilih durasi" isRequired>
         <Label>Durasi absensi</Label>
 
-        <Select.Trigger className="rounded-2xl border border-default-200 bg-content1 text-foreground shadow-none">
+        <Select.Trigger className={selectTriggerClass}>
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-          <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
-            <ListBox.Item
-              id="7"
-              textValue="7 Hari"
-              className="rounded-xl text-foreground"
-            >
-              7 Hari
-            </ListBox.Item>
-
-            <ListBox.Item
-              id="14"
-              textValue="14 Hari"
-              className="rounded-xl text-foreground"
-            >
-              14 Hari
-            </ListBox.Item>
-
-            <ListBox.Item
-              id="30"
-              textValue="30 Hari"
-              className="rounded-xl text-foreground"
-            >
-              30 Hari
-            </ListBox.Item>
+        <Select.Popover className={popoverClass}>
+          <ListBox className={listBoxClass}>
+            {durationOptions.map((option) => (
+              <ListBox.Item
+                key={option.id}
+                id={option.id}
+                textValue={option.label}
+                className={optionClass}
+              >
+                {option.label}
+              </ListBox.Item>
+            ))}
           </ListBox>
         </Select.Popover>
       </Select>
 
       <TextField name="description">
         <Label>Catatan</Label>
-        <TextArea placeholder="Tambahkan informasi mengenai map..." />
+        <TextArea
+          className={textareaClass}
+          placeholder="Tambahkan informasi mengenai map..."
+        />
       </TextField>
 
-      <Button type="submit" variant="primary" className="skeuo-btn w-full">
+      <Button
+        type="submit"
+        variant="primary"
+        className={`${skeuoButton("primary")} w-full`}
+      >
         Kirim untuk review
       </Button>
     </form>
