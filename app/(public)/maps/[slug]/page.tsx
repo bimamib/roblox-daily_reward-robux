@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getMapBySlug } from "@/lib/maps/queries";
 import { linkButton } from "@/lib/ui";
 import { AttendanceClient } from "@/components/attendance-client";
+import { ReportMapButton } from "@/components/report-map-button";
 
 export default async function MapDetailPage({
   params,
@@ -136,6 +137,12 @@ export default async function MapDetailPage({
           <p className="mt-2 break-words text-sm text-default-500">
             Dibuat oleh {map.creatorName}
           </p>
+
+          {user && (
+            <div className="mt-4">
+              <ReportMapButton mapId={map.id} mapName={map.name} />
+            </div>
+          )}
 
           {map.description && (
             <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-default-600">
