@@ -32,6 +32,12 @@
   --input-bg: #15171e;
   --input-border: #343946;
 
+  /* Tombol secondary (skeuomorphic) — dipakai lewat className di lib/ui.ts */
+  --btn2-top: #242833;
+  --btn2-bottom: #191c24;
+  --btn-hl: rgba(255, 255, 255, 0.08);
+  --btn-shadow: rgba(0, 0, 0, 0.4);
+
   /* Sidebar */
   --sidebar-bg: #101218;
   --sidebar-w: 16rem;
@@ -68,6 +74,11 @@ html.light {
   --input-border: #cfd3dc;
 
   --sidebar-bg: #ffffff;
+
+  --btn2-top: #ffffff;
+  --btn2-bottom: #eef0f6;
+  --btn-hl: rgba(255, 255, 255, 0.95);
+  --btn-shadow: rgba(23, 25, 35, 0.14);
 }
 
 /* =========================================================
@@ -96,20 +107,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
+/* Reset dasar ada di @layer base supaya class Tailwind di className tetap
+   menang (aturan tanpa layer akan mengalahkan semua utility, mis. `text-white`
+   pada <a>). font & warna link sudah ditangani preflight Tailwind. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 ::selection {
@@ -144,11 +149,9 @@ html.light .theme-icon-moon {
 }
 
 /* =========================================================
-   FORM CONTROLS — SATU TAMPILAN UNTUK INPUT, TEXTAREA, SELECT
-   Input, textarea, dan trigger Select memakai border, background,
-   radius, padding, ukuran font, dan tinggi yang sama persis.
-   (:where() = specificity 0, tetapi tetap mengalahkan style
-   HeroUI / utility Tailwind yang berada di @layer.)
+   FORM — WARNA / TEMA SAJA
+   Ukuran, border, radius, dan background field diatur lewat className
+   (lihat lib/ui.ts), mengikuti ukuran HeroUI v3: h-10 md:h-9, text-sm.
    ========================================================= */
 
 label {
@@ -157,59 +160,6 @@ label {
 
 [data-slot="label"] {
   color: var(--text-secondary) !important;
-}
-
-:where(
-  input:not(
-    [type="checkbox"],
-    [type="radio"],
-    [type="range"],
-    [type="submit"],
-    [type="button"],
-    [type="hidden"],
-    [type="file"]
-  ),
-  textarea,
-  [data-slot="trigger"],
-  [data-slot="select-trigger"],
-  .select__trigger,
-  button[aria-haspopup="listbox"]
-) {
-  min-height: 2.875rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--input-border);
-  border-radius: 1rem;
-  background-color: var(--input-bg);
-  color: var(--text);
-  box-shadow: none;
-  outline: none;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-
-/* Fokus seragam untuk semua field */
-input:not(
-    [type="checkbox"],
-    [type="radio"],
-    [type="range"],
-    [type="submit"],
-    [type="button"],
-    [type="hidden"],
-    [type="file"]
-  ):focus-visible,
-textarea:focus-visible,
-[data-slot="trigger"]:focus-visible,
-[data-slot="trigger"][data-focus-visible="true"],
-[data-slot="trigger"][aria-expanded="true"],
-[data-slot="select-trigger"]:focus-visible,
-[data-slot="select-trigger"][data-focus-visible="true"],
-[data-slot="select-trigger"][aria-expanded="true"],
-.select__trigger:focus-visible,
-.select__trigger[aria-expanded="true"],
-button[aria-haspopup="listbox"]:focus-visible,
-button[aria-haspopup="listbox"][aria-expanded="true"] {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 input,
@@ -230,18 +180,6 @@ textarea::placeholder,
   opacity: 1 !important;
 }
 
-/* Background field (input / textarea) */
-input:not(
-  [type="checkbox"],
-  [type="radio"],
-  [type="range"],
-  [type="submit"],
-  [type="button"]
-),
-textarea {
-  background-color: var(--input-bg) !important;
-}
-
 /* Browser autofill */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
@@ -254,12 +192,6 @@ textarea:-webkit-autofill:focus {
   box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
 }
 
-select {
-  appearance: none;
-  background-color: var(--input-bg);
-  accent-color: var(--accent);
-}
-
 input:not(
   [type="checkbox"],
   [type="radio"],
@@ -267,33 +199,20 @@ input:not(
   [type="submit"],
   [type="button"]
 ),
-textarea {
+textarea,
+select {
   accent-color: var(--accent);
 }
 
-/* =========================================================
-   HEROUI SELECT — TRIGGER (background sama dengan input)
-   ========================================================= */
-
-[data-slot="trigger"],
-[data-slot="select-trigger"],
-.select__trigger,
-button[aria-haspopup="listbox"] {
-  background-color: var(--input-bg) !important;
-  color: var(--text) !important;
-}
-
+/* Teks nilai & placeholder pada trigger Select */
 [data-slot="trigger"] [data-slot="value"],
 [data-slot="trigger"] [data-slot="value"] *,
 [data-slot="select-trigger"] [data-slot="select-value"],
 [data-slot="select-trigger"] [data-slot="select-value"] *,
 .select__trigger .select__value,
-.select__trigger .select__value *,
-button[aria-haspopup="listbox"] span {
+.select__trigger .select__value * {
   color: var(--text) !important;
   -webkit-text-fill-color: var(--text) !important;
-  font-size: inherit;
-  line-height: inherit;
 }
 
 [data-slot="value"][data-placeholder],
@@ -333,8 +252,6 @@ button[aria-haspopup="listbox"] span {
 
 [role="option"],
 [data-slot="listbox"] [data-key] {
-  min-height: 2.5rem;
-  padding-inline: 0.75rem;
   border: 0 !important;
   border-radius: 0.7rem !important;
   background: transparent !important;
@@ -370,67 +287,6 @@ button[aria-haspopup="listbox"] span {
 [role="option"][aria-selected="true"] * {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
-}
-
-/* =========================================================
-   SKEUOMORPHIC BUTTON
-   ========================================================= */
-
-.skeuo-btn {
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-
-  background: linear-gradient(180deg, #9b82ff 0%, #7657e8 100%) !important;
-
-  color: #ffffff !important;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 1px 0 rgba(54, 38, 125, 0.8) !important;
-
-  transform: none !important;
-
-  transition:
-    box-shadow 0.12s ease,
-    filter 0.12s ease;
-}
-
-.skeuo-btn:hover {
-  transform: none !important;
-  filter: brightness(1.06);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 1px 0 rgba(54, 38, 125, 0.8) !important;
-}
-
-.skeuo-btn:active {
-  transform: translateY(1px) !important;
-
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.12),
-    0 1px 0 #4a369e !important;
-}
-
-/* =========================================================
-   LINKS
-   ========================================================= */
-
-.skeuo-link {
-  display: block;
-  text-align: center;
-  border-radius: 12px;
-  padding: 0.7rem 1rem;
-  font-weight: 800;
-
-  background: var(--surface-soft);
-  color: var(--text);
-  border: 1px solid var(--border);
-
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-html.light .skeuo-link {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 /* =========================================================
@@ -644,6 +500,9 @@ html:not(.light) {
   position: sticky;
   top: 0;
   z-index: 40;
+  /* Tinggi total (termasuk border) = tinggi header sidebar, sehingga garis
+     bawah navbar dan sidebar sejajar tepat. */
+  height: var(--navbar-h);
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 85%, transparent);
   -webkit-backdrop-filter: blur(16px);
@@ -654,7 +513,7 @@ html:not(.light) {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  height: var(--navbar-h);
+  height: 100%;
   padding: 0 1rem;
 }
 
@@ -755,14 +614,16 @@ html:not(.light) {
 
 .sb-brand-mark {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex: none;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.6rem;
-  background: linear-gradient(135deg, #9b82ff 0%, #5b3de0 100%);
-  color: #ffffff;
+}
+
+.sb-brand-mark img,
+.sb-brand-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .sb-nav {
@@ -976,185 +837,41 @@ html:not(.light) {
 }
 
 /* =========================================================
-   BUTTONS (pill) — dipakai di halaman admin
+   PAGE LOADING (app/loading.tsx)
+   Muncul dengan jeda 200ms: navigasi cepat tidak memunculkan
+   kilatan "loading", dan tingginya tetap (tanpa layout jump).
    ========================================================= */
 
-.btn {
-  display: inline-flex;
+.page-loading {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
-  padding: 0 1.1rem;
-  border: 1px solid transparent;
+  min-height: calc(100vh - var(--navbar-h));
+  animation: page-loading-in 0.2s ease 0.2s both;
+}
+
+.page-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
   border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    filter 0.15s ease,
-    transform 0.1s ease;
+  animation: page-spin 0.7s linear infinite;
 }
 
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.btn-icon {
-  flex: none;
-  width: 1rem;
-  height: 1rem;
-}
-
-.btn-primary {
-  border-color: rgba(255, 255, 255, 0.16);
-  background: linear-gradient(180deg, #9b82ff 0%, #7657e8 100%);
-  color: #ffffff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 1px 0 rgba(54, 38, 125, 0.8);
-}
-
-.btn-primary:hover {
-  filter: brightness(1.07);
-}
-
-.btn-secondary {
-  border-color: var(--input-border);
-  background: var(--surface);
-  color: var(--text);
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent);
-  background: var(--surface-hover);
-  color: var(--accent);
-}
-
-.btn-danger {
-  border-color: rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.btn-danger:hover {
-  border-color: #ef4444;
-  background: #ef4444;
-  color: #ffffff;
-}
-
-html.light .btn-danger {
-  color: #dc2626;
-}
-
-html.light .btn-danger:hover {
-  color: #ffffff;
-}
-
-/* =========================================================
-   ADMIN — DAFTAR MAP
-   ========================================================= */
-
-.admin-map-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 1.25rem;
-  background: var(--surface);
-}
-
-.admin-map-info {
-  min-width: 0;
-  flex: 1 1 14rem;
-}
-
-.admin-map-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.admin-map-actions form {
-  margin: 0;
-}
-
-/* Desktop: pembungkus tidak membuat kotak, badge tetap sejajar tombol.
-   Mobile: badge mendapat baris sendiri (lihat media query di bawah). */
-.admin-map-status {
-  display: contents;
-}
-
-@media (max-width: 640px) {
-  .admin-map-row {
-    padding: 0.9rem;
+@keyframes page-loading-in {
+  from {
+    opacity: 0;
   }
-
-  .admin-map-actions {
-    width: 100%;
-  }
-
-  .admin-map-actions > .btn,
-  .admin-map-actions > form {
-    flex: 1 1 0%;
-  }
-
-  .admin-map-actions > form > .btn {
-    width: 100%;
-  }
-
-  .admin-map-status {
-    display: block;
-    flex: 0 0 100%;
+  to {
+    opacity: 1;
   }
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  align-self: center;
-  width: fit-content;
-  min-height: 1.75rem;
-  padding: 0 0.75rem;
-  border-radius: 9999px;
-  background: var(--surface-soft);
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.status-pill--active {
-  background: rgba(34, 197, 94, 0.14);
-  color: #22c55e;
-}
-
-.status-pill--pending {
-  background: rgba(245, 158, 11, 0.14);
-  color: #f59e0b;
-}
-
-html.light .status-pill--active {
-  color: #15803d;
-}
-
-html.light .status-pill--pending {
-  color: #b45309;
+@keyframes page-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* =========================================================
@@ -1191,13 +908,6 @@ html.light .status-pill--pending {
 
   .attendance-row {
     align-items: stretch;
-  }
-
-  [data-slot="trigger"],
-  [data-slot="select-trigger"],
-  .select__trigger,
-  button[aria-haspopup="listbox"] {
-    width: 100%;
   }
 
   [data-slot="popover"],
