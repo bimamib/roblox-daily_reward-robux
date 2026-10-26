@@ -1,9 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
+import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, Chip } from "@heroui/react";
 import { setDeliveryStatusAction } from "@/actions/attendance";
+import { useDialogs } from "@/components/dialog-provider";
+import { linkButton, skeuoButton } from "@/lib/ui";
 
 type DeliveryStatus = "NOT_APPLICABLE" | "NOT_SENT" | "PENDING" | "SENT";
 
@@ -102,7 +105,9 @@ function StatCard({
 
 function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const { notify } = useDialogs();
+  const busyRef = useRef(false);
+  const [busyClaimId, setBusyClaimId] = useState<string | null>(null);
 
   const duration = tracker.map.durationDays || 1;
   const attendedDays = new Set(
@@ -141,23 +146,36 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
       ? Math.min(100, Math.round((robuxSent / robuxTarget) * 100))
       : 0;
 
-  function changeDeliveryStatus(claim: Claim) {
-    if (pending || claim.rewardType !== "ROBUX") return;
+  async function changeDeliveryStatus(claim: Claim) {
+    if (busyRef.current || claim.rewardType !== "ROBUX") return;
 
     const status = nextDeliveryStatus(claim.deliveryStatus);
 
-    startTransition(async () => {
-      try {
-        await setDeliveryStatusAction(claim.id, status);
-        router.refresh();
-      } catch (error) {
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Gagal memperbarui status pengiriman.",
-        );
-      }
-    });
+    busyRef.current = true;
+    setBusyClaimId(claim.id);
+
+    let failure: string | null = null;
+
+    try {
+      await setDeliveryStatusAction(claim.id, status);
+      router.refresh();
+    } catch (error) {
+      failure =
+        error instanceof Error
+          ? error.message
+          : "Gagal memperbarui status pengiriman.";
+    } finally {
+      busyRef.current = false;
+      setBusyClaimId(null);
+    }
+
+    if (failure) {
+      await notify({
+        title: "Terjadi kesalahan",
+        description: failure,
+        tone: "danger",
+      });
+    }
   }
 
   return (
@@ -266,13 +284,13 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
                     variant={
                       claim.deliveryStatus === "SENT" ? "primary" : "secondary"
                     }
-                    isDisabled={pending}
-                    onPress={() => changeDeliveryStatus(claim)}
-                    className="shrink-0"
+                    isDisabled={busyClaimId === claim.id}
+                    onPress={() => void changeDeliveryStatus(claim)}
+                    className={`${skeuoButton(
+                      claim.deliveryStatus === "SENT" ? "primary" : "secondary",
+                    )} shrink-0`}
                   >
-                    {pending
-                      ? "Memproses..."
-                      : deliveryLabel(claim.deliveryStatus)}
+                    {deliveryLabel(claim.deliveryStatus)}
                   </Button>
                 </div>
               ))}
@@ -281,12 +299,12 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
 
         {tracker.map.slug && (
           <div>
-            <a
+            <Link
               href={`/maps/${tracker.map.slug}`}
-              className="inline-flex rounded-xl border border-default-200 px-4 py-2 text-sm font-bold transition hover:border-violet-400 hover:text-violet-500"
+              className={linkButton("secondary", "sm")}
             >
               Buka tracker map →
-            </a>
+            </Link>
           </div>
         )}
       </Card.Content>
@@ -397,12 +415,9 @@ export function DashboardClient({
               Buka halaman map dan lakukan check-in untuk mulai mencatat
               progress.
             </p>
-            <a
-              href="/"
-              className="mt-4 inline-flex rounded-xl bg-violet-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-violet-700"
-            >
+            <Link href="/" className={`${linkButton("primary")} mt-4`}>
               Jelajahi map
-            </a>
+            </Link>
           </div>
         )}
       </section>
