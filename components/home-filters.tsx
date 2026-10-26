@@ -8,25 +8,39 @@ import {
   Select,
   TextField,
 } from "@heroui/react";
+import {
+  inputClass,
+  listBoxClass,
+  optionClass,
+  popoverClass,
+  selectTriggerClass,
+  skeuoButton,
+} from "@/lib/ui";
 
 interface HomeFiltersProps {
   search?: string;
   duration?: string;
 }
 
+const durationOptions = [
+  { id: "all", label: "Semua durasi" },
+  { id: "7", label: "7 Hari" },
+  { id: "14", label: "14 Hari" },
+  { id: "30", label: "30 Hari" },
+];
+
 export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
   return (
-    // items-end: ketiga kontrol (input, select, tombol) rata di garis bawah.
-    // Tinggi input, trigger Select, dan tombol .field-btn sama persis (46px).
+    // md:items-end -> input, select, dan tombol rata di garis bawah.
+    // Ketiganya sama tinggi (h-10 / md:h-9, ukuran HeroUI v3), jadi sejajar.
     <form
       method="GET"
       action="/"
       className="mb-7 grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end"
     >
       <TextField name="search" defaultValue={search}>
-        <Label className="rounded-xl text-foreground">Cari map</Label>
-
-        <Input placeholder="Nama map atau creator" />
+        <Label>Cari map</Label>
+        <Input className={inputClass} placeholder="Nama map atau creator" />
       </TextField>
 
       <Select
@@ -34,51 +48,34 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
         placeholder="Semua durasi"
         defaultSelectedKey={duration || null}
       >
-        <Label className="rounded-xl text-foreground">Durasi</Label>
+        <Label>Durasi</Label>
 
-        <Select.Trigger>
+        <Select.Trigger className={selectTriggerClass}>
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
 
-        <Select.Popover className="rounded-2xl border border-default-200 bg-content1 p-1 text-foreground shadow-none">
-          <ListBox className="rounded-xl bg-content1 p-1 text-foreground">
-            <ListBox.Item
-              id="all"
-              textValue="Semua durasi"
-              className="rounded-xl text-foreground"
-            >
-              Semua durasi
-            </ListBox.Item>
-
-            <ListBox.Item
-              id="7"
-              textValue="7 Hari"
-              className="rounded-xl text-foreground"
-            >
-              7 Hari
-            </ListBox.Item>
-
-            <ListBox.Item
-              id="14"
-              textValue="14 Hari"
-              className="rounded-xl text-foreground"
-            >
-              14 Hari
-            </ListBox.Item>
-
-            <ListBox.Item
-              id="30"
-              textValue="30 Hari"
-              className="rounded-xl text-foreground"
-            >
-              30 Hari
-            </ListBox.Item>
+        <Select.Popover className={popoverClass}>
+          <ListBox className={listBoxClass}>
+            {durationOptions.map((option) => (
+              <ListBox.Item
+                key={option.id}
+                id={option.id}
+                textValue={option.label}
+                className={optionClass}
+              >
+                {option.label}
+              </ListBox.Item>
+            ))}
           </ListBox>
         </Select.Popover>
       </Select>
 
-      <Button type="submit" variant="primary" className="skeuo-btn field-btn">
+      <Button
+        type="submit"
+        variant="primary"
+        className={`${skeuoButton("primary")} min-w-24`}
+      >
         Cari
       </Button>
     </form>
