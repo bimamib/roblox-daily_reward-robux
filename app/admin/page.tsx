@@ -5,11 +5,11 @@ import { AdminActions } from "@/components/admin-actions";
 export default async function AdminPage() {
   await requireAdmin();
 
-  const [maps, users, pending, reports] = await Promise.all([
+  const [maps, users, unverified, reports] = await Promise.all([
     prisma.map.count(),
     prisma.profile.count(),
     prisma.map.count({
-      where: { status: "PENDING_REVIEW" },
+      where: { status: "ACTIVE", verificationStatus: "UNVERIFIED" },
     }),
     prisma.mapReport.count({
       where: { status: "OPEN" },
@@ -23,7 +23,7 @@ export default async function AdminPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Maps" value={maps} />
         <Stat label="Users" value={users} />
-        <Stat label="Pending review" value={pending} />
+        <Stat label="Belum diverifikasi" value={unverified} />
         <Stat label="Laporan terbuka" value={reports} />
       </div>
 

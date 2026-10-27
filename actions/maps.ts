@@ -250,6 +250,45 @@ export async function setMapStatusAction(formData: FormData) {
   revalidateCatalog();
 }
 
+/** Admin: tandai map sebagai terverifikasi / belum diverifikasi. */
+export async function setVerificationAction(formData: FormData) {
+  const id = String(formData.get("id") || "");
+  const verification = String(formData.get("verification") || "");
+
+  if (!id) {
+    throw new Error("ID map tidak ditemukan.");
+  }
+
+  if (verification !== "VERIFIED" && verification !== "UNVERIFIED") {
+    throw new Error("Status verifikasi tidak valid.");
+  }
+
+  const { profile } = await requireAdmin();
+
+  await prisma.$transaction([
+    prisma.map.update({
+      where: { id },
+      data: {
+        verificationStatus: verification,
+        lastVerifiedAt: verification === "VERIFIED" ? new Date() : null,
+      },
+    }),
+    prisma.mapChangeLog.create({
+      data: {
+        mapId: id,
+        adminId: profile.id,
+        action: verification === "VERIFIED" ? "MAP_VERIFIED" : "MAP_UNVERIFIED",
+        description:
+          verification === "VERIFIED"
+            ? "Map ditandai terverifikasi oleh admin."
+            : "Verifikasi map dicabut oleh admin.",
+      },
+    }),
+  ]);
+
+  revalidateCatalog();
+}
+
 /**
  * Admin: tindak lanjut laporan sebuah map.
  *  - resolution = "disable": map dinonaktifkan, laporan ditandai selesai.
