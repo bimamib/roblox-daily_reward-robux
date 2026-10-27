@@ -4,11 +4,20 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
-import { Check, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  Eye,
+  EyeOff,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import {
   approveMapAction,
   deleteMapAction,
   setMapStatusAction,
+  setVerificationAction,
 } from "@/actions/maps";
 import { useDialogs } from "@/components/dialog-provider";
 import { linkButton, skeuoButton } from "@/lib/ui";
@@ -19,6 +28,7 @@ type MapData = {
   phaseNumber: number;
   durationDays: number;
   status: string;
+  verificationStatus: string;
   openReports: number;
   rewards: {
     id: string;
@@ -182,6 +192,20 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                     {statusLabel(map.status)}
                   </Chip>
 
+                  <Chip
+                    size="sm"
+                    variant="soft"
+                    color={
+                      map.verificationStatus === "VERIFIED"
+                        ? "success"
+                        : "default"
+                    }
+                  >
+                    {map.verificationStatus === "VERIFIED"
+                      ? "Terverifikasi"
+                      : "Belum verified"}
+                  </Chip>
+
                   {map.openReports > 0 && (
                     <Link href="/admin/reports">
                       <Chip size="sm" variant="soft" color="danger">
@@ -215,6 +239,33 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                   >
                     <Check className="size-4" aria-hidden="true" />
                     Approve
+                  </Button>
+                )}
+
+                {map.status === "ACTIVE" && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className={`${skeuoButton("secondary")} flex-1 sm:flex-none`}
+                    isDisabled={busyKey === `verify-${map.id}`}
+                    onPress={() =>
+                      void runAction(
+                        `verify-${map.id}`,
+                        setVerificationAction,
+                        map.id,
+                        {
+                          verification:
+                            map.verificationStatus === "VERIFIED"
+                              ? "UNVERIFIED"
+                              : "VERIFIED",
+                        },
+                      )
+                    }
+                  >
+                    <BadgeCheck className="size-4" aria-hidden="true" />
+                    {map.verificationStatus === "VERIFIED"
+                      ? "Cabut verifikasi"
+                      : "Verifikasi"}
                   </Button>
                 )}
 
