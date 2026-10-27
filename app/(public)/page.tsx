@@ -8,7 +8,6 @@ interface HomePageProps {
   searchParams: Promise<{
     search?: string;
     duration?: string;
-    verified?: string;
   }>;
 }
 
@@ -19,12 +18,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const duration = typeof params.duration === "string" ? params.duration : "";
 
-  const verifiedOnly = params.verified === "1";
-
   const maps = await getActiveMaps({
     search,
     duration,
-    verifiedOnly,
   });
 
   // The detail page displays the signed-in user's personal Robux target.
@@ -73,11 +69,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <HomeFilters
-          search={search}
-          duration={duration}
-          verifiedOnly={verifiedOnly}
-        />
+        <HomeFilters search={search} duration={duration} />
 
         <div className="mb-5 flex items-end justify-between">
           <div>
