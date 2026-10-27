@@ -3,14 +3,11 @@ import { prisma } from "@/lib/prisma";
 interface GetActiveMapsOptions {
   search?: string;
   duration?: string;
-  /** true -> hanya map yang sudah diverifikasi admin. */
-  verifiedOnly?: boolean;
 }
 
 export async function getActiveMaps({
   search,
   duration,
-  verifiedOnly = false,
 }: GetActiveMapsOptions = {}) {
   const trimmedSearch = search?.trim();
 
@@ -22,8 +19,6 @@ export async function getActiveMaps({
   const maps = await prisma.map.findMany({
     where: {
       status: "ACTIVE",
-
-      ...(verifiedOnly ? { verificationStatus: "VERIFIED" } : {}),
 
       ...(trimmedSearch
         ? {
