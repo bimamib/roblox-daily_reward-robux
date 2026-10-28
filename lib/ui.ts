@@ -50,20 +50,47 @@ export function linkButton(
 }
 
 /* ------------------------------------------------------------------ */
-/* Field                                                              */
+/* Field                                                               */
 /* ------------------------------------------------------------------ */
 
-const fieldBase =
-  "w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors focus-visible:border-[color:var(--accent)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent-soft)]";
+/**
+ * Focus ring seperti HeroUI: garis 2px penuh berwarna aksen
+ * (border 1px + ring 1px, tanpa jarak dari field).
+ */
+const focusRing =
+  "focus-visible:border-[color:var(--accent)] focus-visible:ring-1 focus-visible:ring-[color:var(--accent)]";
+
+const fieldBase = `w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${focusRing}`;
 
 /** <Input> HeroUI atau <input> biasa. */
 export const inputClass = `h-9 ${fieldBase}`;
 
-/** <Select.Trigger> HeroUI (tinggi sama dengan input). */
-export const selectTriggerClass = `h-9 aria-expanded:border-[color:var(--accent)] ${fieldBase}`;
+/**
+ * <Select.Trigger> HeroUI (tinggi sama dengan input).
+ *
+ * Teks di dalam trigger dipaksa 14px / line-height 20px dan dipusatkan secara
+ * vertikal (items-center, tanpa padding atas-bawah). Tanpa ini, di layar kecil
+ * teks nilai bawaan HeroUI (16px) membuat teks turun dari tengah.
+ */
+export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 py-0 leading-5 aria-expanded:border-[color:var(--accent)] aria-expanded:ring-1 aria-expanded:ring-[color:var(--accent)] [&_*]:py-0 [&_*]:text-sm [&_*]:leading-5 ${fieldBase}`;
 
-/** <TextArea> HeroUI atau <textarea> biasa. */
-export const textareaClass = `min-h-24 resize-y py-2 ${fieldBase}`;
+/**
+ * Textarea dibuat dari dua bagian:
+ *  - textareaShellClass : kotak berborder (membawa focus ring via focus-within)
+ *  - textareaClass      : <textarea>/<TextArea> polos di dalam kotak itu
+ * Padding kotak (p-1) membuat scrollbar berada DI DALAM border, tidak
+ * menyentuh sudut membulat — sama seperti scrollbar pada daftar Hari reward.
+ *
+ * Contoh:
+ *   <div className={textareaShellClass}>
+ *     <TextArea className={textareaClass} />
+ *   </div>
+ */
+export const textareaShellClass =
+  "flex w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] p-1 transition-colors focus-within:border-[color:var(--accent)] focus-within:ring-1 focus-within:ring-[color:var(--accent)]";
+
+export const textareaClass =
+  "block min-h-24 w-full min-w-0 resize-y rounded-lg border-0 bg-transparent px-2 py-1.5 text-sm text-[color:var(--text)] shadow-none outline-none ring-0 [&::-webkit-scrollbar-track]:bg-transparent!";
 
 /** <Select.Popover>, <ListBox>, dan <ListBox.Item>. */
 export const popoverClass = "rounded-xl p-1 shadow-lg";
