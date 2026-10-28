@@ -18,6 +18,7 @@ import {
   selectTriggerClass,
   skeuoButton,
   textareaClass,
+  textareaShellClass,
 } from "@/lib/ui";
 
 const durationOptions = [
@@ -76,10 +77,12 @@ export function SubmitMapForm() {
 
       <TextField name="description">
         <Label>Catatan</Label>
-        <TextArea
-          className={textareaClass}
-          placeholder="Tambahkan informasi mengenai map..."
-        />
+        <div className={textareaShellClass}>
+          <TextArea
+            className={textareaClass}
+            placeholder="Tambahkan informasi mengenai map..."
+          />
+        </div>
       </TextField>
 
       <Button
