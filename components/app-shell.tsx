@@ -21,6 +21,7 @@ import {
 import { logoutAction } from "@/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandMark } from "@/components/brand-mark";
+import { FooterMeta } from "@/components/footer-meta";
 
 export type Viewer = {
   displayName: string;
@@ -288,6 +289,8 @@ export function AppShell({
             Kami tidak pernah meminta password, cookie, atau akses ke akun
             Roblox kamu.
           </p>
+
+          <FooterMeta />
         </footer>
       </div>
     </div>
