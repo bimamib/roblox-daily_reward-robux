@@ -2,7 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Checkbox, Button, Label, ListBox, Select } from "@heroui/react";
+import {
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextArea,
+  TextField,
+} from "@heroui/react";
 import {
   checkInAction,
   restartTrackerAction,
@@ -20,6 +29,7 @@ import {
   selectTriggerClass,
   skeuoButton,
   textareaClass,
+  textareaShellClass,
 } from "@/lib/ui";
 
 type RewardType = "ROBUX" | "COIN" | "ITEM" | "XP" | "SPIN" | "OTHER";
@@ -75,8 +85,6 @@ const rewardTypes: { value: RewardType; label: string }[] = [
   { value: "SPIN", label: "Spin" },
   { value: "OTHER", label: "Lainnya" },
 ];
-
-const labelClass = "block w-full min-w-0 space-y-2 text-sm font-medium";
 
 function formatNumber(value: number) {
   return value.toLocaleString("id-ID");
@@ -537,112 +545,99 @@ export function AttendanceClient({
           className="min-w-0 space-y-4"
         >
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className={labelClass}>
-              <Label>Hari reward</Label>
-              <Select
-                aria-label="Hari reward"
-                selectedKey={selectedDay}
-                onSelectionChange={(key) =>
-                  key != null && setSelectedDay(String(key))
-                }
-              >
-                <Select.Trigger className={selectTriggerClass}>
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover className={popoverClass}>
-                  <ListBox className={listBoxClass}>
-                    {Array.from(
-                      { length: map.durationDays },
-                      (_, index) => index + 1,
-                    ).map((day) => (
-                      <ListBox.Item
-                        key={day}
-                        id={String(day)}
-                        textValue={`Day ${day}`}
-                        className={optionClass}
-                      >
-                        Day {day}
-                        {configuredRewards.has(day) ? " · Sudah diatur" : ""}
-                        <ListBox.ItemIndicator />
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
-            </div>
+            <Select
+              selectedKey={selectedDay}
+              onSelectionChange={(key) =>
+                key != null && setSelectedDay(String(key))
+              }
+            >
+              <Label>Hari Reward</Label>
 
-            <div className={labelClass}>
-              <Label>Jenis reward</Label>
-              <Select
-                aria-label="Jenis reward"
-                selectedKey={rewardType}
-                onSelectionChange={(key) =>
-                  key != null && setRewardType(String(key) as RewardType)
-                }
-              >
-                <Select.Trigger className={selectTriggerClass}>
-                  <Select.Value />
-                  <Select.Indicator />
-                </Select.Trigger>
-                <Select.Popover className={popoverClass}>
-                  <ListBox className={listBoxClass}>
-                    {rewardTypes.map((item) => (
-                      <ListBox.Item
-                        key={item.value}
-                        id={item.value}
-                        textValue={item.label}
-                        className={optionClass}
-                      >
-                        {item.label}
-                        <ListBox.ItemIndicator />
-                      </ListBox.Item>
-                    ))}
-                  </ListBox>
-                </Select.Popover>
-              </Select>
-            </div>
+              <Select.Trigger className={selectTriggerClass}>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
 
-            <label className={labelClass}>
-              <span>Nominal reward</span>
-              <input
-                className={inputClass}
-                type="number"
-                min="0"
-                step="1"
-                value={amount}
-                onChange={(event) => setAmount(event.target.value)}
-                required
-              />
-              <span className="text-xs font-normal text-default-500">
+              <Select.Popover className={popoverClass}>
+                <ListBox className={listBoxClass}>
+                  {Array.from(
+                    { length: map.durationDays },
+                    (_, index) => index + 1,
+                  ).map((day) => (
+                    <ListBox.Item
+                      key={day}
+                      id={String(day)}
+                      textValue={`Day ${day}`}
+                      className={optionClass}
+                    >
+                      Day {day}
+                      {configuredRewards.has(day) ? " · Sudah diatur" : ""}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+
+            <Select
+              selectedKey={rewardType}
+              onSelectionChange={(key) =>
+                key != null && setRewardType(String(key) as RewardType)
+              }
+            >
+              <Label>Jenis Reward</Label>
+
+              <Select.Trigger className={selectTriggerClass}>
+                <Select.Value />
+                <Select.Indicator />
+              </Select.Trigger>
+
+              <Select.Popover className={popoverClass}>
+                <ListBox className={listBoxClass}>
+                  {rewardTypes.map((item) => (
+                    <ListBox.Item
+                      key={item.value}
+                      id={item.value}
+                      textValue={item.label}
+                      className={optionClass}
+                    >
+                      {item.label}
+                      <ListBox.ItemIndicator />
+                    </ListBox.Item>
+                  ))}
+                </ListBox>
+              </Select.Popover>
+            </Select>
+
+            <TextField value={amount} onChange={setAmount} isRequired>
+              <Label>Nominal Reward</Label>
+              <Input className={inputClass} type="number" min="0" step="1" />
+              <p className="mt-1 text-xs text-[color:var(--text-muted)]">
                 Digunakan untuk Robux atau reward kuantitatif.
-              </span>
-            </label>
+              </p>
+            </TextField>
 
-            <label className={labelClass}>
-              <span>Judul reward</span>
-              <input
+            <TextField value={title} onChange={setTitle} isRequired>
+              <Label>Judul Reward</Label>
+              <Input
                 className={inputClass}
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
                 placeholder="Contoh: Bonus harian"
-                required
                 maxLength={120}
               />
-            </label>
+            </TextField>
           </div>
 
-          <label className={labelClass}>
-            <span>Deskripsi (opsional)</span>
-            <textarea
-              className={textareaClass}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Catatan tentang reward ini"
-              maxLength={1000}
-              rows={3}
-            />
-          </label>
+          <TextField value={description} onChange={setDescription}>
+            <Label>Deskripsi (opsional)</Label>
+            <div className={textareaShellClass}>
+              <TextArea
+                className={textareaClass}
+                placeholder="Catatan tentang reward ini"
+                maxLength={1000}
+                rows={3}
+              />
+            </div>
+          </TextField>
 
           <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
             <Button
