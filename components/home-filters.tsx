@@ -23,7 +23,7 @@ interface HomeFiltersProps {
 }
 
 const durationOptions = [
-  { id: "all", label: "Semua durasi" },
+  { id: "all", label: "Semua Durasi" },
   { id: "7", label: "7 Hari" },
   { id: "14", label: "14 Hari" },
   { id: "30", label: "30 Hari" },
@@ -40,12 +40,12 @@ export function HomeFilters({ search = "", duration = "" }: HomeFiltersProps) {
     >
       <TextField name="search" defaultValue={search}>
         <Label>Cari Map</Label>
-        <Input className={inputClass} placeholder="Nama map atau creator" />
+        <Input className={inputClass} placeholder="Nama Map atau Creator" />
       </TextField>
 
       <Select
         name="duration"
-        placeholder="Semua durasi"
+        placeholder="Semua Durasi"
         defaultSelectedKey={duration || null}
       >
         <Label>Durasi</Label>
