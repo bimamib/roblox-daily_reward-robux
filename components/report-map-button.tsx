@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Label, ListBox, Modal, Select } from "@heroui/react";
-import { Flag } from "lucide-react";
+import {
+  Button,
+  Label,
+  ListBox,
+  Modal,
+  Select,
+  TextArea,
+  TextField,
+} from "@heroui/react";
+import { CircleAlert } from "lucide-react";
 import { reportMapAction } from "@/actions/maps";
 import { useDialogs } from "@/components/dialog-provider";
 import { reportReasons } from "@/lib/report-reasons";
@@ -13,6 +21,7 @@ import {
   selectTriggerClass,
   skeuoButton,
   textareaClass,
+  textareaShellClass,
 } from "@/lib/ui";
 
 /**
@@ -74,10 +83,10 @@ export function ReportMapButton({
       <Button
         size="sm"
         variant="secondary"
-        className={skeuoButton("secondary")}
+        className={`${skeuoButton("secondary")} items-center gap-2 leading-none`}
         onPress={() => setOpen(true)}
       >
-        <Flag className="size-4" aria-hidden="true" />
+        <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
         Laporkan map
       </Button>
 
@@ -88,7 +97,7 @@ export function ReportMapButton({
 
             <Modal.Header>
               <Modal.Icon className="bg-danger-soft text-danger-soft-foreground">
-                <Flag className="size-5" aria-hidden="true" />
+                <CircleAlert className="size-5" aria-hidden="true" />
               </Modal.Icon>
               <Modal.Heading>Laporkan map</Modal.Heading>
             </Modal.Header>
@@ -129,17 +138,17 @@ export function ReportMapButton({
                 </Select.Popover>
               </Select>
 
-              <label className="block space-y-2 text-sm font-medium">
-                <span>Keterangan (opsional)</span>
-                <textarea
-                  className={textareaClass}
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  placeholder="Jelaskan masalahnya singkat saja"
-                  maxLength={500}
-                  rows={3}
-                />
-              </label>
+              <TextField value={note} onChange={setNote}>
+                <Label>Keterangan (opsional)</Label>
+                <div className={textareaShellClass}>
+                  <TextArea
+                    className={textareaClass}
+                    placeholder="Jelaskan masalahnya singkat saja"
+                    maxLength={500}
+                    rows={3}
+                  />
+                </div>
+              </TextField>
             </Modal.Body>
 
             <Modal.Footer>
