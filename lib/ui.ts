@@ -81,8 +81,14 @@ export const inputClass = `h-9 ${fieldBase}`;
 export const inputGroupClass =
   "flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none outline-none transition-colors focus-within:border-[color:var(--accent)] focus-within:ring-1 focus-within:ring-[color:var(--accent)]";
 
+/**
+ * `rounded-[inherit]` penting: saat password manager mengisi kolom, Chrome
+ * mengecat lapisan autofill persegi di seluruh kotak <input>. Tanpa sudut
+ * membulat yang sama dengan kotak induknya, sudut persegi itu menimpa border
+ * melengkung di kiri atas/bawah dan menimbulkan garis ganda tipis.
+ */
 export const inputGroupInputClass =
-  "h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm shadow-none outline-none ring-0";
+  "h-full min-w-0 flex-1 rounded-[inherit] border-0 bg-transparent px-3 text-sm shadow-none outline-none ring-0";
 
 /**
  * <Select.Trigger> HeroUI (tinggi sama dengan input).
