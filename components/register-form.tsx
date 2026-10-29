@@ -2,6 +2,7 @@
 
 import { Button, Input, Label, TextField } from "@heroui/react";
 import { registerAction } from "@/actions/auth";
+import { PasswordField } from "@/components/password-field";
 import { cardClass, inputClass, skeuoButton } from "@/lib/ui";
 
 interface RegisterFormProps {
@@ -26,18 +27,28 @@ export function RegisterForm({ error }: RegisterFormProps) {
 
       <TextField name="username" isRequired>
         <Label>Username</Label>
-        <Input className={inputClass} />
+        <Input
+          className={inputClass}
+          placeholder="Masukkan username"
+          autoComplete="username"
+        />
       </TextField>
 
       <TextField name="email" type="email" isRequired>
         <Label>Email</Label>
-        <Input className={inputClass} />
+        <Input
+          className={inputClass}
+          placeholder="Masukkan email"
+          autoComplete="email"
+        />
       </TextField>
 
-      <TextField name="password" type="password" isRequired>
-        <Label>Password</Label>
-        <Input className={inputClass} minLength={8} />
-      </TextField>
+      <PasswordField
+        placeholder="Masukkan password"
+        autoComplete="new-password"
+        minLength={8}
+        hint="Minimal 8 karakter."
+      />
 
       <Button
         type="submit"
