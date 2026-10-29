@@ -44,11 +44,10 @@ export function FooterMeta() {
   return (
     <div className="mt-4 border-t border-[color:var(--border)] pt-4">
       <p>
-        &#169;{" "}
+        Meyo &copy;{" "}
         <span suppressHydrationWarning>
           {(now ?? new Date()).getFullYear()}
-        </span>{" "}
-        Meyo
+        </span>
       </p>
 
       <p
