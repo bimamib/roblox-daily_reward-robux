@@ -20,13 +20,21 @@
 export type ButtonTone = "primary" | "secondary" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
+/**
+ * Ketiga warna tombol memakai "geometri" yang sama persis supaya terlihat
+ * sama tebal saat berdampingan:
+ *   - border 1px (warna turunan tombol, tidak lebih gelap dari isinya)
+ *   - highlight tipis di atas   : inset 0 1px 0
+ *   - bayangan tipis di bawah   : 0 1px 2px  (tanpa glow besar)
+ *   - saat ditekan              : inset 0 2px 3px
+ */
 const skeuoTone: Record<ButtonTone, string> = {
   primary:
-    "border border-[#5b3de0] bg-[linear-gradient(180deg,#a287ff_0%,#6d4aff_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_2px_rgba(91,61,224,0.4),0_6px_14px_-4px_rgba(109,74,255,0.55)] transition-[filter,box-shadow] hover:brightness-110 active:brightness-95 active:shadow-[inset_0_2px_4px_rgba(46,16,140,0.45)]",
+    "border border-[#6d4aff] bg-[linear-gradient(180deg,#a287ff_0%,#6d4aff_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_2px_rgba(76,45,200,0.3)] transition-[filter,box-shadow] hover:brightness-110 active:brightness-95 active:shadow-[inset_0_2px_3px_rgba(46,16,140,0.4)]",
   secondary:
     "border border-[color:var(--input-border)] bg-[linear-gradient(180deg,var(--btn2-top)_0%,var(--btn2-bottom)_100%)] text-[color:var(--text)] shadow-[inset_0_1px_0_var(--btn-hl),0_1px_2px_var(--btn-shadow)] transition-[filter,box-shadow,border-color] hover:border-[color:var(--accent)] hover:brightness-105 active:shadow-[inset_0_2px_3px_var(--btn-shadow)]",
   danger:
-    "border border-[#b91c1c] bg-[linear-gradient(180deg,#f87171_0%,#dc2626_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_1px_2px_rgba(185,28,28,0.4),0_6px_14px_-4px_rgba(220,38,38,0.5)] transition-[filter,box-shadow] hover:brightness-110 active:brightness-95 active:shadow-[inset_0_2px_4px_rgba(127,29,29,0.5)]",
+    "border border-[#dc2626] bg-[linear-gradient(180deg,#f87171_0%,#dc2626_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_1px_2px_rgba(153,27,27,0.3)] transition-[filter,box-shadow] hover:brightness-110 active:brightness-95 active:shadow-[inset_0_2px_3px_rgba(127,29,29,0.45)]",
 };
 
 /**
@@ -64,6 +72,17 @@ const fieldBase = `w-full min-w-0 rounded-xl border border-[color:var(--input-bo
 
 /** <Input> HeroUI atau <input> biasa. */
 export const inputClass = `h-9 ${fieldBase}`;
+
+/**
+ * <InputGroup> HeroUI (kolom + tombol/ikon di dalamnya, mis. show password).
+ * Kotak luar membawa border, background, dan focus ring (lewat focus-within);
+ * <InputGroup.Input> di dalamnya dibuat polos.
+ */
+export const inputGroupClass =
+  "flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none outline-none transition-colors focus-within:border-[color:var(--accent)] focus-within:ring-1 focus-within:ring-[color:var(--accent)]";
+
+export const inputGroupInputClass =
+  "h-full min-w-0 flex-1 border-0 bg-transparent px-3 text-sm shadow-none outline-none ring-0";
 
 /**
  * <Select.Trigger> HeroUI (tinggi sama dengan input).
