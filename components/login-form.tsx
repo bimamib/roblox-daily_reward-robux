@@ -2,6 +2,7 @@
 
 import { Button, Input, Label, TextField } from "@heroui/react";
 import { loginAction } from "@/actions/auth";
+import { PasswordField } from "@/components/password-field";
 import { cardClass, inputClass, skeuoButton } from "@/lib/ui";
 
 interface LoginFormProps {
@@ -26,13 +27,17 @@ export function LoginForm({ error }: LoginFormProps) {
 
       <TextField name="email" type="email" isRequired>
         <Label>Email</Label>
-        <Input className={inputClass} placeholder="Masukkan email" />
+        <Input
+          className={inputClass}
+          placeholder="Masukkan email"
+          autoComplete="email"
+        />
       </TextField>
 
-      <TextField name="password" type="password" isRequired>
-        <Label>Password</Label>
-        <Input className={inputClass} placeholder="Masukkan password" />
-      </TextField>
+      <PasswordField
+        placeholder="Masukkan password"
+        autoComplete="current-password"
+      />
 
       <Button
         type="submit"
