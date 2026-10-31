@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 
 interface GetActiveMapsOptions {
@@ -74,7 +75,9 @@ export async function getActiveMaps({
   );
 }
 
-export async function getMapBySlug(slug: string) {
+// cache(): generateMetadata dan halaman memanggil fungsi ini pada request yang
+// sama; hasilnya dipakai bersama sehingga database hanya diquery sekali.
+export const getMapBySlug = cache(async (slug: string) => {
   return prisma.map.findFirst({
     where: {
       slug,
@@ -97,4 +100,4 @@ export async function getMapBySlug(slug: string) {
       },
     },
   });
-}
+});
