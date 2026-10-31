@@ -1,13 +1,44 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Chip } from "@heroui/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarDays, CircleAlert } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getMapBySlug } from "@/lib/maps/queries";
 import { linkButton } from "@/lib/ui";
+import { buildMetadata } from "@/lib/site";
 import { AttendanceClient } from "@/components/attendance-client";
 import { ReportMapButton } from "@/components/report-map-button";
+
+/** Ringkas teks menjadi maksimal `max` karakter untuk deskripsi meta. */
+function summarize(text: string, max = 155) {
+  const clean = text.replace(/\s+/g, " ").trim();
+
+  return clean.length > max ? `${clean.slice(0, max - 1).trimEnd()}…` : clean;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const map = await getMapBySlug(slug);
+
+  if (!map) {
+    return { title: "Map tidak ditemukan", robots: { index: false } };
+  }
+
+  const description = map.description?.trim()
+    ? summarize(map.description)
+    : `Catat absensi ${map.durationDays} hari dan pantau reward Robux di map ${map.name} karya ${map.creatorName}.`;
+
+  return buildMetadata({
+    title: map.name,
+    description,
+    path: `/maps/${map.slug}`,
+  });
+}
 
 export default async function MapDetailPage({
   params,
@@ -95,21 +126,25 @@ export default async function MapDetailPage({
 
       <section className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-7">
         <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden map-detail-cover rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white sm:min-h-64 sm:p-7">
+          {/* Lencana berlatar kaca gelap: terbaca jelas di seluruh gradien banner
+              (kontras minimal 7:1), tanpa bergantung pada warna ungu di belakangnya. */}
           <div className="relative flex flex-wrap gap-2">
-            <Chip
-              size="sm"
-              color={
-                map.verificationStatus === "VERIFIED" ? "success" : "warning"
-              }
-              variant="soft"
-            >
-              {map.verificationStatus === "VERIFIED"
-                ? "✓ Verified"
-                : "Belum verified"}
-            </Chip>
-            <Chip size="sm" variant="soft">
+            {map.verificationStatus === "VERIFIED" ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-emerald-300 shadow-sm backdrop-blur-sm">
+                <BadgeCheck className="size-4 shrink-0" aria-hidden="true" />
+                Verified
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-amber-300 shadow-sm backdrop-blur-sm">
+                <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
+                Belum verified
+              </span>
+            )}
+
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-white shadow-sm backdrop-blur-sm">
+              <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
               {map.durationDays} hari
-            </Chip>
+            </span>
           </div>
 
           <div className="relative mt-8">

@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { getActiveMaps } from "@/lib/maps/queries";
+import { buildMetadata } from "@/lib/site";
 import { MapCard } from "@/components/map-card";
 import { HomeFilters } from "@/components/home-filters";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+
+// Kanonik "/" untuk semua variasi pencarian (?search=..&duration=..), supaya
+// Google tidak menganggapnya sebagai halaman duplikat.
+export const metadata: Metadata = buildMetadata({ path: "/" });
 
 interface HomePageProps {
   searchParams: Promise<{
