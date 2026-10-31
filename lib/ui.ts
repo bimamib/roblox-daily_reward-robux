@@ -63,10 +63,15 @@ export function linkButton(
 
 /**
  * Focus ring seperti HeroUI: garis 2px penuh berwarna aksen
- * (border 1px + ring 1px, tanpa jarak dari field).
+ * (border 1px + outline 1px, tanpa jarak dari field).
+ *
+ * Sengaja memakai `outline`, BUKAN `ring`/box-shadow: saat browser mengisi
+ * kolom dari saran (autofill), globals.css memaksa box-shadow inset agar warna
+ * autofill bawaan browser tidak tampil. Ring berbasis box-shadow ikut tertimpa
+ * (garis jadi tipis), sedangkan outline tidak terpengaruh.
  */
 const focusRing =
-  "focus-visible:border-[color:var(--accent)] focus-visible:ring-1 focus-visible:ring-[color:var(--accent)]";
+  "focus-visible:border-[color:var(--accent)] focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-[color:var(--accent)]";
 
 const fieldBase = `w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${focusRing}`;
 
