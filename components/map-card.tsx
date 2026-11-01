@@ -51,7 +51,7 @@ export function MapCard({
       <Card className="h-full min-w-0 border border-default-200/70 bg-content1 transition duration-200 group-hover:-translate-y-1 group-hover:border-violet-400/60 group-hover:shadow-none">
         <Card.Content className="flex h-full min-w-0 flex-col gap-4 p-4 sm:p-5">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-700 text-sm font-black text-white shadow-none sm:size-14">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-violet-500 to-indigo-700 text-sm font-black text-white shadow-none sm:size-14">
               {map.name
                 .trim()
                 .split(/\s+/)
@@ -62,7 +62,7 @@ export function MapCard({
             </div>
 
             <div className="min-w-0 flex-1">
-              <h3 className="break-words text-base font-black leading-snug sm:text-lg">
+              <h3 className="wrap-break-word text-base font-black leading-snug sm:text-lg">
                 {map.name}
               </h3>
               <p className="mt-1 truncate text-sm text-default-500">
@@ -99,7 +99,7 @@ export function MapCard({
           </div>
 
           {map.description && (
-            <p className="line-clamp-3 break-words text-sm leading-relaxed text-default-500">
+            <p className="line-clamp-3 wrap-break-word text-sm leading-relaxed text-default-500">
               {map.description}
             </p>
           )}
