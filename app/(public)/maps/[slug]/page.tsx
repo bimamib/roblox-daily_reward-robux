@@ -165,11 +165,11 @@ export default async function MapDetailPage({
             Detail map
           </p>
 
-          <h1 className="mt-3 break-words text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+          <h1 className="mt-3 wrap-break-word text-3xl font-black leading-tight tracking-tight sm:text-4xl">
             {map.name}
           </h1>
 
-          <p className="mt-2 break-words text-sm text-default-500">
+          <p className="mt-2 wrap-break-word text-sm text-default-500">
             Dibuat oleh {map.creatorName}
           </p>
 
@@ -180,7 +180,7 @@ export default async function MapDetailPage({
           )}
 
           {map.description && (
-            <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-default-600">
+            <p className="mt-4 whitespace-pre-line wrap-break-word text-sm leading-7 text-default-600">
               {map.description}
             </p>
           )}
@@ -190,21 +190,21 @@ export default async function MapDetailPage({
               <p className="text-xs text-default-500">
                 {user ? "Target Robux pribadi" : "Total Robux publik"}
               </p>
-              <p className="mt-1 break-words text-xl font-black text-success-600">
+              <p className="mt-1 wrap-break-word text-xl font-black text-success-600">
                 {target.toLocaleString("id-ID")} R$
               </p>
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
               <p className="text-xs text-default-500">Robux terkirim</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {robuxSent.toLocaleString("id-ID")} R$
               </p>
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
               <p className="text-xs text-default-500">Belum terkirim</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {robuxPending.toLocaleString("id-ID")} R$
               </p>
             </div>
