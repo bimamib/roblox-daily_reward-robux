@@ -476,19 +476,19 @@ export function AttendanceClient({
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Target Robux pribadi</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {formatNumber(robuxTarget)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Sudah terkirim</p>
-              <p className="mt-1 break-words text-xl font-black text-success-600">
+              <p className="mt-1 wrap-break-word text-xl font-black text-success-600">
                 {formatNumber(robuxSent)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Belum terkirim</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {formatNumber(robuxOutstanding)} R$
               </p>
             </div>
