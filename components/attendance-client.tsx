@@ -706,11 +706,11 @@ export function AttendanceClient({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="break-words font-bold">
+                      <p className="wrap-break-word font-bold">
                         {reward ? rewardLabel(reward) : "Absensi harian"}
                       </p>
 
-                      <p className="mt-1 break-words text-xs text-default-500">
+                      <p className="mt-1 wrap-break-word text-xs text-default-500">
                         {reward
                           ? reward.rewardType === "ROBUX"
                             ? "Milestone Robux pribadi"
