@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import { DEFAULT_RESET_MODE, isResetMode } from "@/lib/attendance/rules";
 
 export async function createMapAdminAction(formData: FormData) {
   await requireAdmin();
@@ -11,11 +12,13 @@ export async function createMapAdminAction(formData: FormData) {
   const durationDays = Number(formData.get("durationDays"));
   const phaseNumber = Number(formData.get("phaseNumber"));
   const parent = String(formData.get("parentMapId") || "none");
+  const resetMode = String(formData.get("resetMode") || DEFAULT_RESET_MODE);
   if (
     !name ||
     !creatorName ||
     !robloxUrl ||
-    ![7, 14, 30].includes(durationDays)
+    ![7, 14, 30].includes(durationDays) ||
+    !isResetMode(resetMode)
   )
     throw new Error("Data map tidak valid.");
   const slug = `${name
@@ -29,6 +32,7 @@ export async function createMapAdminAction(formData: FormData) {
       creatorName,
       robloxUrl,
       durationDays,
+      resetMode,
       phaseNumber,
       parentMapId: parent === "none" ? null : parent,
       status: "ACTIVE",
@@ -52,16 +56,35 @@ export async function createMapAdminAction(formData: FormData) {
 export async function updateMapAdminAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id"));
+  const name = String(formData.get("name") || "").trim();
+  const creatorName = String(formData.get("creatorName") || "").trim();
+  const robloxUrl = String(formData.get("robloxUrl") || "").trim();
+  const durationDays = Number(formData.get("durationDays"));
+  const phaseNumber = Number(formData.get("phaseNumber"));
+  const resetMode = String(formData.get("resetMode") || "");
+  if (
+    !id ||
+    !name ||
+    !creatorName ||
+    !robloxUrl ||
+    ![7, 14, 30].includes(durationDays) ||
+    !Number.isInteger(phaseNumber) ||
+    phaseNumber < 1 ||
+    !isResetMode(resetMode)
+  )
+    throw new Error("Data map tidak valid.");
   await prisma.map.update({
     where: { id },
     data: {
-      name: String(formData.get("name")),
-      creatorName: String(formData.get("creatorName")),
-      robloxUrl: String(formData.get("robloxUrl")),
-      durationDays: Number(formData.get("durationDays")),
-      phaseNumber: Number(formData.get("phaseNumber")),
+      name,
+      creatorName,
+      robloxUrl,
+      durationDays,
+      phaseNumber,
+      resetMode,
     },
   });
   revalidatePath("/");
   revalidatePath("/admin/maps");
+  revalidatePath(`/admin/maps/${id}/edit`);
 }
