@@ -9,6 +9,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { createMapAdminAction } from "@/actions/admin";
+import { DEFAULT_RESET_MODE, resetModeOptions } from "@/lib/attendance/rules";
 import {
   inputClass,
   listBoxClass,
@@ -45,6 +46,34 @@ export function AdminMapNewForm({ parents }: { parents: ParentMap[] }) {
         <Label>Duration</Label>
         <Input className={inputClass} type="number" placeholder="7 / 14 / 30" />
       </TextField>
+
+      <Select
+        name="resetMode"
+        defaultSelectedKey={DEFAULT_RESET_MODE}
+        isRequired
+      >
+        <Label>Aturan reset reward harian</Label>
+
+        <Select.Trigger className={selectTriggerClass}>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+
+        <Select.Popover className={popoverClass}>
+          <ListBox className={listBoxClass}>
+            {resetModeOptions.map((option) => (
+              <ListBox.Item
+                key={option.id}
+                id={option.id}
+                textValue={option.label}
+                className={optionClass}
+              >
+                {option.label}
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+      </Select>
 
       <TextField name="phaseNumber" defaultValue="1" isRequired>
         <Label>Phase number</Label>

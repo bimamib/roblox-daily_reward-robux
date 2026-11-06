@@ -1,7 +1,22 @@
 "use client";
 
-import { Button, Input, Label, TextField } from "@heroui/react";
-import { inputClass, skeuoButton } from "@/lib/ui";
+import {
+  Button,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextField,
+} from "@heroui/react";
+import { resetModeOptions } from "@/lib/attendance/rules";
+import {
+  inputClass,
+  listBoxClass,
+  optionClass,
+  popoverClass,
+  selectTriggerClass,
+  skeuoButton,
+} from "@/lib/ui";
 
 type Reward = {
   id: string;
@@ -18,6 +33,7 @@ type AdminMapEditFormProps = {
     robloxUrl: string;
     durationDays: number;
     phaseNumber: number;
+    resetMode: string;
   };
   rewards: Reward[];
   updateMapAdminAction: (formData: FormData) => Promise<void>;
@@ -84,6 +100,35 @@ export function AdminMapEditForm({
           <Label>Phase</Label>
           <Input className={inputClass} type="number" />
         </TextField>
+
+        <Select
+          name="resetMode"
+          defaultSelectedKey={map.resetMode}
+          isRequired
+          className="md:col-span-2"
+        >
+          <Label>Aturan reset reward harian</Label>
+
+          <Select.Trigger className={selectTriggerClass}>
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+
+          <Select.Popover className={popoverClass}>
+            <ListBox className={listBoxClass}>
+              {resetModeOptions.map((option) => (
+                <ListBox.Item
+                  key={option.id}
+                  id={option.id}
+                  textValue={option.label}
+                  className={optionClass}
+                >
+                  {option.label}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
 
         <div className="md:col-span-2">
           <Button type="submit" className={skeuoButton("primary")}>
