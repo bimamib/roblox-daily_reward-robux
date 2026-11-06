@@ -41,6 +41,7 @@ export default async function EditMapPage({
           robloxUrl: map.robloxUrl,
           durationDays: map.durationDays,
           phaseNumber: map.phaseNumber,
+          resetMode: map.resetMode,
         }}
         rewards={map.rewards.map((reward) => ({
           id: reward.id,
