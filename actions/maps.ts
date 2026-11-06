@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireUser } from "@/lib/auth";
 import { parseRobloxGameUrl, ROBLOX_URL_HINT } from "@/lib/roblox";
+import { fail, type ActionFailure } from "@/lib/action-result";
+import { DEFAULT_RESET_MODE, isResetMode } from "@/lib/attendance/rules";
 import type { ReportReason } from "@/app/generated/prisma/client";
 
 function revalidateCatalog() {
@@ -51,6 +53,12 @@ export async function submitMapAction(formData: FormData) {
     failSubmit("Durasi absensi harus 7, 14, atau 30 hari.");
   }
 
+  const rawResetMode = String(formData.get("resetMode") || DEFAULT_RESET_MODE);
+
+  if (!isResetMode(rawResetMode)) {
+    failSubmit("Aturan reset tidak valid.");
+  }
+
   // Hanya link game roblox.com yang diterima (anti-phishing).
   const parsed = parseRobloxGameUrl(rawUrl);
 
@@ -90,6 +98,7 @@ export async function submitMapAction(formData: FormData) {
       robloxPlaceId: parsed.placeId,
       description: description || null,
       durationDays,
+      resetMode: rawResetMode,
 
       // Langsung bisa digunakan user.
       status: "ACTIVE",
@@ -125,13 +134,13 @@ export async function reportMapAction(input: {
   mapId: string;
   reason: string;
   note?: string;
-}) {
+}): Promise<{ ok: true } | ActionFailure> {
   const { user } = await requireUser();
 
   const reason = REPORT_REASONS.find((item) => item === input.reason);
 
   if (!reason) {
-    throw new Error("Alasan laporan tidak valid.");
+    return fail("Alasan laporan tidak valid.");
   }
 
   const note = input.note?.trim().slice(0, 500) || null;
@@ -142,7 +151,7 @@ export async function reportMapAction(input: {
   });
 
   if (!map || map.status !== "ACTIVE") {
-    throw new Error("Map tidak tersedia.");
+    return fail("Map tidak tersedia.");
   }
 
   const existing = await prisma.mapReport.findUnique({
@@ -151,7 +160,7 @@ export async function reportMapAction(input: {
   });
 
   if (existing && existing.status !== "OPEN") {
-    throw new Error("Laporanmu untuk map ini sudah ditinjau admin.");
+    return fail("Laporanmu untuk map ini sudah ditinjau admin.");
   }
 
   if (existing) {
@@ -169,7 +178,7 @@ export async function reportMapAction(input: {
   revalidatePath("/admin/maps");
   revalidatePath("/admin/reports");
 
-  return { success: true };
+  return { ok: true };
 }
 
 /* ------------------------------------------------------------------ */
