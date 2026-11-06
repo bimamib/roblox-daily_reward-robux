@@ -739,7 +739,7 @@ export function AttendanceClient({
                       )}
 
                       {claim && (
-                        <p className="mt-2 break-words text-xs text-default-500">
+                        <p className="mt-2 wrap-break-word text-xs text-default-500">
                           Klaim tercatat: {claim.rewardTitle} ·{" "}
                           {claim.rewardType === "ROBUX"
                             ? `${formatNumber(claim.rewardAmount)} Robux`
