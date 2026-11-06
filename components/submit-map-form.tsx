@@ -10,6 +10,7 @@ import {
   TextField,
 } from "@heroui/react";
 import { submitMapAction } from "@/actions/maps";
+import { DEFAULT_RESET_MODE, resetModeOptions } from "@/lib/attendance/rules";
 import {
   inputClass,
   listBoxClass,
@@ -73,6 +74,40 @@ export function SubmitMapForm() {
             ))}
           </ListBox>
         </Select.Popover>
+      </Select>
+
+      <Select
+        name="resetMode"
+        defaultSelectedKey={DEFAULT_RESET_MODE}
+        isRequired
+      >
+        <Label>Kapan reward harian reset?</Label>
+
+        <Select.Trigger className={selectTriggerClass}>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+
+        <Select.Popover className={popoverClass}>
+          <ListBox className={listBoxClass}>
+            {resetModeOptions.map((option) => (
+              <ListBox.Item
+                key={option.id}
+                id={option.id}
+                textValue={option.label}
+                className={optionClass}
+              >
+                {option.label}
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+
+        <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+          Pilih sesuai cara game mereset reward harian. Tidak yakin? Biarkan
+          &ldquo;Harian, reset 00.00 UTC&rdquo; (paling umum). Aturan ini
+          menentukan kapan kamu bisa check-in lagi dan kapan streak putus.
+        </p>
       </Select>
 
       <TextField name="description">

@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 import { CircleAlert } from "lucide-react";
 import { reportMapAction } from "@/actions/maps";
+import { isActionFailure } from "@/lib/action-result";
 import { useDialogs } from "@/components/dialog-provider";
 import { reportReasons } from "@/lib/report-reasons";
 import {
@@ -49,7 +50,9 @@ export function ReportMapButton({
     let failure: string | null = null;
 
     try {
-      await reportMapAction({ mapId, reason, note });
+      const result = await reportMapAction({ mapId, reason, note });
+
+      if (isActionFailure(result)) failure = result.error;
     } catch (error) {
       failure =
         error instanceof Error ? error.message : "Gagal mengirim laporan.";
