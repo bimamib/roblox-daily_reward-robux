@@ -61,6 +61,16 @@ enum ReportStatus {
   DISMISSED
 }
 
+// Aturan reset reward harian sebuah map.
+//  - DAILY_UTC   : hari berganti 00.00 UTC (07.00 WIB)
+//  - DAILY_LOCAL : hari berganti 00.00 di zona waktu akun pengguna
+//  - ROLLING_24H : tersedia lagi 24 jam setelah klaim terakhir (putus jika > 48 jam)
+enum ResetMode {
+  DAILY_UTC
+  DAILY_LOCAL
+  ROLLING_24H
+}
+
 model Profile {
   id          String   @id @db.Uuid
   username    String?  @unique
@@ -91,6 +101,9 @@ model Map {
   robloxUrl          String
   thumbnailUrl       String?
   durationDays       Int
+  // Default DAILY_LOCAL = perilaku lama (tengah malam zona akun), sehingga map
+  // yang sudah ada tidak berubah. Map baru dari form memilih DAILY_UTC.
+  resetMode          ResetMode          @default(DAILY_LOCAL)
   phaseNumber        Int                @default(1)
   parentMapId        String?            @db.Uuid
   status             MapStatus          @default(PENDING_REVIEW)
@@ -183,11 +196,13 @@ model AttendanceTracker {
 }
 
 model AttendanceLog {
-  id          String            @id @default(uuid()) @db.Uuid
-  trackerId   String            @db.Uuid
-  tracker     AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
-  dayNumber   Int
-  checkedInAt DateTime          @default(now())
+  id           String            @id @default(uuid()) @db.Uuid
+  trackerId    String            @db.Uuid
+  tracker      AttendanceTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  dayNumber    Int
+  checkedInAt  DateTime          @default(now())
+  // true = hari ini diisi manual lewat "Isi absensi sebelumnya"
+  isBackfilled Boolean           @default(false)
 
   @@unique([trackerId, dayNumber])
   @@index([trackerId])
@@ -240,16 +255,16 @@ model MapChangeLog {
 // Laporan dari pengguna terhadap sebuah map (link salah, phishing, dst.).
 // Satu pengguna hanya bisa punya satu laporan per map.
 model MapReport {
-  id          String       @id @default(uuid()) @db.Uuid
-  mapId       String       @db.Uuid
-  map         Map          @relation(fields: [mapId], references: [id], onDelete: Cascade)
-  reporterId  String       @db.Uuid
-  reporter    Profile      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-  reason      ReportReason
-  note        String?
-  status      ReportStatus @default(OPEN)
-  createdAt   DateTime     @default(now())
-  resolvedAt  DateTime?
+  id         String       @id @default(uuid()) @db.Uuid
+  mapId      String       @db.Uuid
+  map        Map          @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  reporterId String       @db.Uuid
+  reporter   Profile      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reason     ReportReason
+  note       String?
+  status     ReportStatus @default(OPEN)
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
 
   @@unique([mapId, reporterId])
   @@index([mapId])
