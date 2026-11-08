@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button, Card, Chip } from "@heroui/react";
 import { setDeliveryStatusAction } from "@/actions/attendance";
 import { useDialogs } from "@/components/dialog-provider";
+import { isActionFailure } from "@/lib/action-result";
 import { linkButton, skeuoButton } from "@/lib/ui";
 
 type DeliveryStatus = "NOT_APPLICABLE" | "NOT_SENT" | "PENDING" | "SENT";
@@ -95,7 +96,7 @@ function StatCard({
     <Card className="min-w-0 border border-default-200/70 bg-content1">
       <Card.Content className="gap-2 p-4 sm:p-5">
         <p className="text-sm text-default-500">{label}</p>
-        <p className="wrap-break-word text-2xl font-black tracking-tight sm:text-3xl">
+        <p className="break-words text-2xl font-black tracking-tight sm:text-3xl">
           {value}
         </p>
         <p className="text-xs text-default-500">{detail}</p>
@@ -158,8 +159,13 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
     let failure: string | null = null;
 
     try {
-      await setDeliveryStatusAction(claim.id, status);
-      router.refresh();
+      const result = await setDeliveryStatusAction(claim.id, status);
+
+      if (isActionFailure(result)) {
+        failure = result.error;
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       failure =
         error instanceof Error
@@ -184,7 +190,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
       <Card.Content className="min-w-0 gap-5 p-4 sm:p-6">
         <div className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-start">
           <div className="min-w-0">
-            <h3 className="wrap-break-word text-lg font-black sm:text-xl">
+            <h3 className="break-words text-lg font-black sm:text-xl">
               {tracker.map.name}
             </h3>
             <p className="mt-1 text-sm text-default-500">
@@ -231,7 +237,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
                 style={{ width: `${robuxProgress}%` }}
               />
             </div>
-            <p className="mt-2 wrap-break-word text-xs text-default-500">
+            <p className="mt-2 break-words text-xs text-default-500">
               {formatNumber(robuxSent)} / {formatNumber(robuxTarget)} R$
             </p>
           </div>
@@ -240,7 +246,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-default-200 p-3 sm:p-4">
             <p className="text-xs text-default-500">Belum terkirim</p>
-            <p className="mt-1 wrap-break-word text-lg font-black">
+            <p className="mt-1 break-words text-lg font-black">
               {formatNumber(outstandingRobux)} R$
             </p>
           </div>
@@ -272,10 +278,10 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
                   className="flex min-w-0 flex-col gap-3 rounded-2xl border border-default-200 p-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="wrap-break-word font-semibold">
+                    <p className="break-words font-semibold">
                       Day {claim.dayNumber} · {claim.rewardAmount} Robux
                     </p>
-                    <p className="wrap-break-word text-sm text-default-500">
+                    <p className="break-words text-sm text-default-500">
                       {claim.rewardTitle}
                     </p>
                   </div>
@@ -338,8 +344,8 @@ function SubmittedMapCard({ map }: { map: any }) {
       className="flex min-w-0 flex-col gap-3 rounded-2xl border border-default-200 p-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="min-w-0">
-        <p className="wrap-break-word font-bold">{map.name}</p>
-        <p className="mt-1 wrap-break-word text-sm text-default-500">
+        <p className="break-words font-bold">{map.name}</p>
+        <p className="mt-1 break-words text-sm text-default-500">
           {map.durationDays} hari · {map.creatorName}
         </p>
       </div>
@@ -367,10 +373,10 @@ export function DashboardClient({
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-500">
             RbxDaily
           </p>
-          <h1 className="mt-2 wrap-break-word text-3xl font-black tracking-tight sm:text-4xl">
+          <h1 className="mt-2 break-words text-3xl font-black tracking-tight sm:text-4xl">
             Dashboard
           </h1>
-          <p className="mt-2 wrap-break-word text-sm text-default-500">
+          <p className="mt-2 break-words text-sm text-default-500">
             Halo, {profile.displayName}
             {profile.username ? ` (@${profile.username})` : ""}. Pantau absensi
             dan status reward kamu di sini.

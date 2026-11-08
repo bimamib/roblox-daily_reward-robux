@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getMapBySlug } from "@/lib/maps/queries";
 import { linkButton } from "@/lib/ui";
 import { buildMetadata } from "@/lib/site";
+import { DEFAULT_TIME_ZONE, describeReset } from "@/lib/attendance/rules";
 import { AttendanceClient } from "@/components/attendance-client";
 import { ReportMapButton } from "@/components/report-map-button";
 
@@ -54,6 +55,17 @@ export default async function MapDetailPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Zona waktu akun dipakai untuk aturan reset "tengah malam waktu kamu"
+  // dan untuk menampilkan jam.
+  const profile = user
+    ? await prisma.profile.findUnique({
+        where: { id: user.id },
+        select: { timezone: true },
+      })
+    : null;
+
+  const timeZone = profile?.timezone ?? DEFAULT_TIME_ZONE;
 
   const tracker = user
     ? await prisma.attendanceTracker.findFirst({
@@ -165,12 +177,16 @@ export default async function MapDetailPage({
             Detail map
           </p>
 
-          <h1 className="mt-3 wrap-break-word text-3xl font-black leading-tight tracking-tight sm:text-4xl">
+          <h1 className="mt-3 break-words text-3xl font-black leading-tight tracking-tight sm:text-4xl">
             {map.name}
           </h1>
 
-          <p className="mt-2 wrap-break-word text-sm text-default-500">
+          <p className="mt-2 break-words text-sm text-default-500">
             Dibuat oleh {map.creatorName}
+          </p>
+
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+            Reset reward: {describeReset(map.resetMode, timeZone)}
           </p>
 
           {user && (
@@ -180,7 +196,7 @@ export default async function MapDetailPage({
           )}
 
           {map.description && (
-            <p className="mt-4 whitespace-pre-line wrap-break-word text-sm leading-7 text-default-600">
+            <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-default-600">
               {map.description}
             </p>
           )}
@@ -190,21 +206,21 @@ export default async function MapDetailPage({
               <p className="text-xs text-default-500">
                 {user ? "Target Robux pribadi" : "Total Robux publik"}
               </p>
-              <p className="mt-1 wrap-break-word text-xl font-black text-success-600">
+              <p className="mt-1 break-words text-xl font-black text-success-600">
                 {target.toLocaleString("id-ID")} R$
               </p>
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
               <p className="text-xs text-default-500">Robux terkirim</p>
-              <p className="mt-1 wrap-break-word text-xl font-black">
+              <p className="mt-1 break-words text-xl font-black">
                 {robuxSent.toLocaleString("id-ID")} R$
               </p>
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
               <p className="text-xs text-default-500">Belum terkirim</p>
-              <p className="mt-1 wrap-break-word text-xl font-black">
+              <p className="mt-1 break-words text-xl font-black">
                 {robuxPending.toLocaleString("id-ID")} R$
               </p>
             </div>
@@ -268,6 +284,9 @@ export default async function MapDetailPage({
               ...reward,
               description: reward.description ?? null,
             }))}
+            resetMode={map.resetMode}
+            timeZone={timeZone}
+            serverNow={new Date().getTime()}
           />
         ) : (
           <div className="rounded-3xl border border-default-200 bg-content1 p-6 sm:p-8">

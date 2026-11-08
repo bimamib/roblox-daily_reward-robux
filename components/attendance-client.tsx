@@ -8,11 +8,14 @@ import {
   Input,
   Label,
   ListBox,
+  Modal,
   Select,
   TextArea,
   TextField,
 } from "@heroui/react";
+import { History } from "lucide-react";
 import {
+  backfillAttendanceAction,
   checkInAction,
   restartTrackerAction,
   setDeliveryStatusAction,
@@ -21,6 +24,15 @@ import {
   resetMapProgressAction,
 } from "@/actions/attendance";
 import { useDialogs } from "@/components/dialog-provider";
+import { isActionFailure } from "@/lib/action-result";
+import {
+  describeReset,
+  formatCountdown,
+  formatDateTime,
+  getCheckInStatus,
+  safeTimeZone,
+  type ResetMode,
+} from "@/lib/attendance/rules";
 import {
   inputClass,
   listBoxClass,
@@ -39,6 +51,7 @@ type AttendanceLog = {
   id: string;
   dayNumber: number;
   checkedInAt: string | Date;
+  isBackfilled?: boolean;
 };
 
 type UserReward = {
@@ -90,14 +103,49 @@ function formatNumber(value: number) {
   return value.toLocaleString("id-ID");
 }
 
+/** "YYYY-MM-DDTHH:mm" waktu perangkat, format yang dipahami <input type="datetime-local">. */
+function toLocalInputValue(ms: number) {
+  const date = new Date(ms);
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/**
+ * Waktu sekarang yang diperbarui tiap detik. Nilai awal berasal dari server,
+ * sehingga HTML server dan render pertama di browser identik (tanpa error
+ * hydration); setelah tampil, jam browser mengambil alih.
+ */
+function useNow(initialMs: number) {
+  const [now, setNow] = useState(initialMs);
+
+  useEffect(() => {
+    setNow(Date.now());
+
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return now;
+}
+
 export function AttendanceClient({
   map,
   tracker,
   userRewards,
+  resetMode,
+  timeZone,
+  serverNow,
 }: {
   map: MapData;
   tracker: Tracker | null;
   userRewards: UserReward[];
+  resetMode: ResetMode;
+  timeZone: string;
+  serverNow: number;
 }) {
   const router = useRouter();
   const { confirm, notify } = useDialogs();
@@ -107,6 +155,14 @@ export function AttendanceClient({
   // klik ganda sebelum state sempat diperbarui.
   const busyRef = useRef(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+
+  const now = useNow(serverNow);
+  const zone = safeTimeZone(timeZone);
+
+  // Dialog "Isi absensi sebelumnya"
+  const [backfillOpen, setBackfillOpen] = useState(false);
+  const [backfillDays, setBackfillDays] = useState("1");
+  const [backfillAt, setBackfillAt] = useState("");
 
   // State form diisi langsung dari data hari 1 pada render pertama,
   // sehingga nilai tidak "berubah sendiri" sesaat setelah halaman tampil.
@@ -144,17 +200,26 @@ export function AttendanceClient({
   const isCompleted =
     tracker?.status === "COMPLETED" || lastAttendanceDay >= map.durationDays;
 
-  const dateKey = (value: string | Date) =>
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Jakarta",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date(value));
+  // Status check-in mengikuti aturan reset map ini (harian UTC / harian lokal /
+  // 24 jam sejak klaim terakhir) — sama persis dengan yang dicek server.
+  const checkInStatus = getCheckInStatus(
+    resetMode,
+    tracker?.lastAttendanceAt ? new Date(tracker.lastAttendanceAt) : null,
+    new Date(now),
+    zone,
+  );
 
-  const hasCheckedInToday = tracker?.lastAttendanceAt
-    ? dateKey(tracker.lastAttendanceAt) === dateKey(new Date())
-    : false;
+  const isLocked = checkInStatus.state === "LOCKED";
+  const isBroken = checkInStatus.state === "BROKEN";
+
+  // Jika streak sudah putus, check-in berikutnya memulai siklus baru dari Day 1.
+  const displayNextDay = isBroken ? 1 : nextDay;
+
+  // Isi mundur hanya untuk siklus yang belum punya absensi sama sekali.
+  const canBackfill =
+    !isCompleted &&
+    attendanceLogs.length === 0 &&
+    tracker?.status !== "ABANDONED";
 
   const selectedReward = configuredRewards.get(Number(selectedDay));
 
@@ -218,8 +283,8 @@ export function AttendanceClient({
     key: string,
     action: () => Promise<unknown>,
     fallback: string,
-  ) {
-    if (busyRef.current) return;
+  ): Promise<boolean> {
+    if (busyRef.current) return false;
 
     busyRef.current = true;
     setBusyKey(key);
@@ -227,8 +292,13 @@ export function AttendanceClient({
     let failure: string | null = null;
 
     try {
-      await action();
-      router.refresh();
+      const result = await action();
+
+      if (isActionFailure(result)) {
+        failure = result.error;
+      } else {
+        router.refresh();
+      }
     } catch (error) {
       failure = error instanceof Error ? error.message : fallback;
     } finally {
@@ -243,16 +313,79 @@ export function AttendanceClient({
         tone: "danger",
       });
     }
+
+    return failure === null;
   }
 
   function handleCheckIn() {
-    if (hasCheckedInToday || isCompleted) return;
+    if (isLocked || isCompleted) return;
 
     void runAction(
       "checkin",
       () => checkInAction(map.id),
       "Gagal melakukan absensi.",
     );
+  }
+
+  function openBackfill() {
+    setBackfillDays("1");
+    setBackfillAt(toLocalInputValue(Date.now()));
+    setBackfillOpen(true);
+  }
+
+  async function submitBackfill() {
+    const days = Number(backfillDays);
+    const when = new Date(backfillAt);
+
+    if (!Number.isInteger(days) || days < 1 || days > map.durationDays) {
+      await notify({
+        title: "Jumlah hari tidak valid",
+        description: `Isi bilangan bulat dari 1 sampai ${map.durationDays}.`,
+        tone: "warning",
+      });
+      return;
+    }
+
+    if (!backfillAt || Number.isNaN(when.getTime())) {
+      await notify({
+        title: "Waktu absen terakhir belum diisi",
+        description: "Pilih tanggal dan jam absen terakhirmu.",
+        tone: "warning",
+      });
+      return;
+    }
+
+    if (when.getTime() > Date.now() + 2 * 60 * 1000) {
+      await notify({
+        title: "Waktu tidak boleh di masa depan",
+        description: "Pilih waktu absen terakhir yang sudah lewat.",
+        tone: "warning",
+      });
+      return;
+    }
+
+    // Tutup dialog dulu agar tidak ada dua overlay bertumpuk; isian tetap
+    // tersimpan sehingga bisa dibuka lagi jika server menolak.
+    setBackfillOpen(false);
+
+    const ok = await runAction(
+      "backfill",
+      () =>
+        backfillAttendanceAction({
+          mapId: map.id,
+          daysDone: days,
+          lastAttendanceAt: when.toISOString(),
+        }),
+      "Gagal mengisi absensi sebelumnya.",
+    );
+
+    if (ok) {
+      await notify({
+        title: "Absensi sebelumnya tersimpan",
+        description: `${days} hari berhasil diisi. Check-in berikutnya mengikuti aturan reset map ini.`,
+        tone: "success",
+      });
+    }
   }
 
   async function handleRestart() {
@@ -397,7 +530,7 @@ export function AttendanceClient({
             variant="primary"
             isDisabled={
               busyKey === "checkin" ||
-              hasCheckedInToday ||
+              isLocked ||
               isCompleted ||
               tracker?.status === "ABANDONED"
             }
@@ -406,10 +539,24 @@ export function AttendanceClient({
           >
             {isCompleted
               ? "Streak Selesai"
-              : hasCheckedInToday
-                ? "Sudah Hadir Hari Ini"
-                : `Check-in Day ${nextDay}`}
+              : isLocked
+                ? "Sudah Hadir"
+                : isBroken
+                  ? "Mulai Siklus Baru (Day 1)"
+                  : `Check-in Day ${displayNextDay}`}
           </Button>
+
+          {canBackfill && (
+            <Button
+              variant="secondary"
+              isDisabled={busyKey === "backfill"}
+              onPress={openBackfill}
+              className={`${skeuoButton("secondary")} w-full sm:w-auto`}
+            >
+              <History className="size-4 shrink-0" aria-hidden="true" />
+              Isi Absensi Sebelumnya
+            </Button>
+          )}
 
           {tracker && (
             <Button
@@ -432,6 +579,41 @@ export function AttendanceClient({
             >
               Reset Data Testing
             </Button>
+          )}
+        </div>
+
+        <div className="mt-4 space-y-1 text-sm" aria-live="polite">
+          <p className="text-[color:var(--text-muted)]">
+            Aturan reset: {describeReset(resetMode, zone, new Date(now))}
+          </p>
+
+          {checkInStatus.state === "LOCKED" && !isCompleted && (
+            <p>
+              Check-in berikutnya tersedia dalam{" "}
+              <strong className="tabular-nums">
+                {formatCountdown(checkInStatus.availableAt.getTime() - now)}
+              </strong>{" "}
+              ({formatDateTime(checkInStatus.availableAt, zone)}).
+            </p>
+          )}
+
+          {checkInStatus.state === "AVAILABLE" && !isCompleted && (
+            <p>
+              Bisa check-in sekarang. Streak aman sampai{" "}
+              {formatDateTime(checkInStatus.deadline, zone)} (sisa{" "}
+              <strong className="tabular-nums">
+                {formatCountdown(checkInStatus.deadline.getTime() - now)}
+              </strong>
+              ).
+            </p>
+          )}
+
+          {checkInStatus.state === "BROKEN" && !isCompleted && (
+            <p className="text-warning">
+              Streak terputus pada {formatDateTime(checkInStatus.brokeAt, zone)}
+              . Check-in berikutnya memulai siklus baru dari Day 1 (riwayat lama
+              tetap tersimpan).
+            </p>
           )}
         </div>
       </section>
@@ -476,19 +658,19 @@ export function AttendanceClient({
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Target Robux pribadi</p>
-              <p className="mt-1 wrap-break-word text-xl font-black">
+              <p className="mt-1 break-words text-xl font-black">
                 {formatNumber(robuxTarget)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Sudah terkirim</p>
-              <p className="mt-1 wrap-break-word text-xl font-black text-success-600">
+              <p className="mt-1 break-words text-xl font-black text-success-600">
                 {formatNumber(robuxSent)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
               <p className="text-xs text-default-500">Belum terkirim</p>
-              <p className="mt-1 wrap-break-word text-xl font-black">
+              <p className="mt-1 break-words text-xl font-black">
                 {formatNumber(robuxOutstanding)} R$
               </p>
             </div>
@@ -551,7 +733,7 @@ export function AttendanceClient({
                 key != null && setSelectedDay(String(key))
               }
             >
-              <Label>Hari Reward</Label>
+              <Label>Hari reward</Label>
 
               <Select.Trigger className={selectTriggerClass}>
                 <Select.Value />
@@ -585,7 +767,7 @@ export function AttendanceClient({
                 key != null && setRewardType(String(key) as RewardType)
               }
             >
-              <Label>Jenis Reward</Label>
+              <Label>Jenis reward</Label>
 
               <Select.Trigger className={selectTriggerClass}>
                 <Select.Value />
@@ -610,7 +792,7 @@ export function AttendanceClient({
             </Select>
 
             <TextField value={amount} onChange={setAmount} isRequired>
-              <Label>Nominal Reward</Label>
+              <Label>Nominal reward</Label>
               <Input className={inputClass} type="number" min="0" step="1" />
               <p className="mt-1 text-xs text-[color:var(--text-muted)]">
                 Digunakan untuk Robux atau reward kuantitatif.
@@ -618,7 +800,7 @@ export function AttendanceClient({
             </TextField>
 
             <TextField value={title} onChange={setTitle} isRequired>
-              <Label>Judul Reward</Label>
+              <Label>Judul reward</Label>
               <Input
                 className={inputClass}
                 placeholder="Contoh: Bonus harian"
@@ -706,11 +888,11 @@ export function AttendanceClient({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="wrap-break-word font-bold">
+                      <p className="break-words font-bold">
                         {reward ? rewardLabel(reward) : "Absensi harian"}
                       </p>
 
-                      <p className="mt-1 wrap-break-word text-xs text-default-500">
+                      <p className="mt-1 break-words text-xs text-default-500">
                         {reward
                           ? reward.rewardType === "ROBUX"
                             ? "Milestone Robux pribadi"
@@ -719,7 +901,7 @@ export function AttendanceClient({
                       </p>
 
                       {reward?.description && (
-                        <p className="mt-1 wrap-break-word text-xs leading-5 text-default-500">
+                        <p className="mt-1 break-words text-xs leading-5 text-default-500">
                           {reward.description}
                         </p>
                       )}
@@ -727,6 +909,7 @@ export function AttendanceClient({
                       {attended && log && (
                         <p className="mt-2 text-xs text-default-500">
                           Hadir: {formatDate(log.checkedInAt)}
+                          {log.isBackfilled ? " · diisi manual" : ""}
                         </p>
                       )}
 
@@ -739,7 +922,7 @@ export function AttendanceClient({
                       )}
 
                       {claim && (
-                        <p className="mt-2 wrap-break-word text-xs text-default-500">
+                        <p className="mt-2 break-words text-xs text-default-500">
                           Klaim tercatat: {claim.rewardTitle} ·{" "}
                           {claim.rewardType === "ROBUX"
                             ? `${formatNumber(claim.rewardAmount)} Robux`
@@ -774,6 +957,85 @@ export function AttendanceClient({
           })}
         </div>
       </section>
+
+      {/* DIALOG: ISI ABSENSI SEBELUMNYA */}
+      <Modal.Backdrop
+        variant="blur"
+        isOpen={backfillOpen}
+        onOpenChange={setBackfillOpen}
+      >
+        <Modal.Container>
+          <Modal.Dialog className="sm:max-w-[460px]">
+            <Modal.CloseTrigger />
+
+            <Modal.Header>
+              <Modal.Icon className="bg-accent-soft text-accent-soft-foreground">
+                <History className="size-5" aria-hidden="true" />
+              </Modal.Icon>
+              <Modal.Heading>Isi absensi sebelumnya</Modal.Heading>
+            </Modal.Header>
+
+            <Modal.Body className="space-y-4">
+              <p className="text-sm leading-6">
+                Sudah menjalankan map ini sebelum memakai RbxDaily? Isi berapa
+                hari kamu sudah absen berturut-turut dan kapan absen terakhirmu.
+                Hari-hari sebelumnya dibuat otomatis dan ditandai &ldquo;diisi
+                manual&rdquo;.
+              </p>
+
+              <TextField
+                value={backfillDays}
+                onChange={setBackfillDays}
+                isRequired
+              >
+                <Label>Sudah absen berapa hari?</Label>
+                <Input
+                  className={inputClass}
+                  type="number"
+                  min="1"
+                  max={String(map.durationDays)}
+                  step="1"
+                />
+                <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+                  Maksimal {map.durationDays} hari. Contoh: sudah 6 hari, isi 6.
+                </p>
+              </TextField>
+
+              <TextField value={backfillAt} onChange={setBackfillAt} isRequired>
+                <Label>Kapan terakhir absen?</Label>
+                <Input
+                  className={inputClass}
+                  type="datetime-local"
+                  max={toLocalInputValue(now)}
+                />
+                <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+                  Memakai jam perangkatmu. Absen terakhir tidak boleh terlalu
+                  lama: streak harus masih hidup menurut aturan reset map ini.
+                </p>
+              </TextField>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                className={skeuoButton("secondary")}
+                onPress={() => setBackfillOpen(false)}
+              >
+                Batal
+              </Button>
+
+              <Button
+                variant="primary"
+                className={skeuoButton("primary")}
+                isDisabled={busyKey === "backfill"}
+                onPress={() => void submitBackfill()}
+              >
+                Simpan
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   );
 }
