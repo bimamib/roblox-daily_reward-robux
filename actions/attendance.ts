@@ -394,9 +394,13 @@ export async function backfillAttendanceAction(input: {
       });
     }
 
+    // `tracker` bertipe let: di dalam callback TypeScript tidak mempertahankan
+    // penyempitan non-null, jadi id disimpan ke const.
+    const trackerId = tracker.id;
+
     await tx.attendanceLog.createMany({
       data: dates.map((checkedInAt, index) => ({
-        trackerId: tracker.id,
+        trackerId,
         dayNumber: index + 1,
         checkedInAt,
         isBackfilled: true,
@@ -410,7 +414,7 @@ export async function backfillAttendanceAction(input: {
 
       return [
         {
-          trackerId: tracker.id,
+          trackerId,
           dayNumber: index + 1,
           rewardType: reward.rewardType,
           rewardAmount: reward.amount,
@@ -430,7 +434,7 @@ export async function backfillAttendanceAction(input: {
     }
 
     await tx.attendanceTracker.update({
-      where: { id: tracker.id },
+      where: { id: trackerId },
       data: {
         startedAt: dates[0],
         lastAttendanceAt: lastAt,
