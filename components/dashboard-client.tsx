@@ -96,7 +96,7 @@ function StatCard({
     <Card className="min-w-0 border border-default-200/70 bg-content1">
       <Card.Content className="gap-2 p-4 sm:p-5">
         <p className="text-sm text-default-500">{label}</p>
-        <p className="break-words text-2xl font-black tracking-tight sm:text-3xl">
+        <p className="wrap-break-word text-2xl font-black tracking-tight sm:text-3xl">
           {value}
         </p>
         <p className="text-xs text-default-500">{detail}</p>
@@ -190,7 +190,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
       <Card.Content className="min-w-0 gap-5 p-4 sm:p-6">
         <div className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-start">
           <div className="min-w-0">
-            <h3 className="break-words text-lg font-black sm:text-xl">
+            <h3 className="wrap-break-word text-lg font-black sm:text-xl">
               {tracker.map.name}
             </h3>
             <p className="mt-1 text-sm text-default-500">
@@ -237,7 +237,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
                 style={{ width: `${robuxProgress}%` }}
               />
             </div>
-            <p className="mt-2 break-words text-xs text-default-500">
+            <p className="mt-2 wrap-break-word text-xs text-default-500">
               {formatNumber(robuxSent)} / {formatNumber(robuxTarget)} R$
             </p>
           </div>
