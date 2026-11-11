@@ -62,16 +62,25 @@ export function linkButton(
 /* ------------------------------------------------------------------ */
 
 /**
- * Focus ring seperti HeroUI: garis 2px penuh berwarna aksen
- * (border 1px + outline 1px, tanpa jarak dari field).
+ * Focus ring SERAGAM untuk semua field (input, select, textarea, kolom password):
+ * cincin `outline` 2px berwarna aksen yang berjarak 2px dari field
+ * (outline-offset), border field TIDAK berubah. Sama dengan contoh HeroUI.
  *
- * Sengaja memakai `outline`, BUKAN `ring`/box-shadow: saat browser mengisi
- * kolom dari saran (autofill), globals.css memaksa box-shadow inset agar warna
- * autofill bawaan browser tidak tampil. Ring berbasis box-shadow ikut tertimpa
- * (garis jadi tipis), sedangkan outline tidak terpengaruh.
+ * Memakai `outline` (bukan ring/box-shadow) agar tidak tertimpa aturan
+ * autofill di globals.css, yang memaksa box-shadow pada input hasil autofill.
+ *
+ * Class ditulis utuh (tidak disusun dari potongan) supaya terbaca oleh Tailwind.
  */
 const focusRing =
-  "focus-visible:border-[color:var(--accent)] focus-visible:outline-1 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-[color:var(--accent)]";
+  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]";
+
+/** Untuk kotak pembungkus (textarea, InputGroup): fokus ada di elemen anak. */
+const withinRing =
+  "focus-within:outline-2 focus-within:outline-solid focus-within:outline-offset-2 focus-within:outline-[color:var(--accent)]";
+
+/** Untuk trigger Select saat daftar pilihan terbuka. */
+const openRing =
+  "aria-expanded:outline-2 aria-expanded:outline-solid aria-expanded:outline-offset-2 aria-expanded:outline-[color:var(--accent)]";
 
 const fieldBase = `w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${focusRing}`;
 
@@ -83,8 +92,7 @@ export const inputClass = `h-9 ${fieldBase}`;
  * Kotak luar membawa border, background, dan focus ring (lewat focus-within);
  * <InputGroup.Input> di dalamnya dibuat polos.
  */
-export const inputGroupClass =
-  "flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none outline-none transition-colors focus-within:border-[color:var(--accent)] focus-within:ring-1 focus-within:ring-[color:var(--accent)]";
+export const inputGroupClass = `flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${withinRing}`;
 
 /**
  * `rounded-[inherit]` penting: saat password manager mengisi kolom, Chrome
@@ -102,7 +110,7 @@ export const inputGroupInputClass =
  * vertikal (items-center, tanpa padding atas-bawah). Tanpa ini, di layar kecil
  * teks nilai bawaan HeroUI (16px) membuat teks turun dari tengah.
  */
-export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 py-0 leading-5 aria-expanded:border-[color:var(--accent)] aria-expanded:ring-1 aria-expanded:ring-[color:var(--accent)] [&_*]:py-0 [&_*]:text-sm [&_*]:leading-5 ${fieldBase}`;
+export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 py-0 leading-5 ${openRing} [&_*]:py-0 [&_*]:text-sm [&_*]:leading-5 ${fieldBase}`;
 
 /**
  * Textarea dibuat dari dua bagian:
@@ -116,8 +124,7 @@ export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 p
  *     <TextArea className={textareaClass} />
  *   </div>
  */
-export const textareaShellClass =
-  "flex w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] p-1 transition-colors focus-within:border-[color:var(--accent)] focus-within:ring-1 focus-within:ring-[color:var(--accent)]";
+export const textareaShellClass = `flex w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] p-1 transition-colors ${withinRing}`;
 
 export const textareaClass =
   "block min-h-24 w-full min-w-0 resize-y rounded-lg border-0 bg-transparent px-2 py-1.5 text-sm text-[color:var(--text)] shadow-none outline-none ring-0 [&::-webkit-scrollbar-track]:bg-transparent!";
@@ -125,7 +132,12 @@ export const textareaClass =
 /** <Select.Popover>, <ListBox>, dan <ListBox.Item>. */
 export const popoverClass = "rounded-xl p-1 shadow-lg";
 export const listBoxClass = "max-h-64 overflow-y-auto outline-none";
-export const optionClass = "min-h-9 rounded-lg px-3 text-sm";
+/**
+ * Pilihan di dalam daftar: cincin fokus keyboard digambar di sisi DALAM
+ * (offset negatif) karena daftar memotong apa pun yang keluar dari kotaknya.
+ */
+export const optionClass =
+  "min-h-9 rounded-lg px-3 text-sm outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--accent)]";
 
 /* ------------------------------------------------------------------ */
 /* Kartu                                                               */
