@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Card, Chip } from "@heroui/react";
+import { Card } from "@heroui/react";
+import {
+  BadgeCheck,
+  CalendarDays,
+  CircleAlert,
+  Coins,
+  Target,
+} from "lucide-react";
+import { Badge } from "@/components/badge";
 
 type MapReward = {
   rewardType: string;
@@ -37,10 +45,10 @@ export function MapCard({
   const totalRobux = signedIn ? personalRobuxTotal : publicRobuxTotal;
   const robuxLabel = signedIn
     ? totalRobux > 0
-      ? `🎯 Target pribadi: ${totalRobux.toLocaleString("id-ID")} Robux`
+      ? `Target pribadi: ${totalRobux.toLocaleString("id-ID")} Robux`
       : "Target Robux pribadi: 0"
     : totalRobux > 0
-      ? `💰 ${totalRobux.toLocaleString("id-ID")} Robux tersedia`
+      ? `${totalRobux.toLocaleString("id-ID")} Robux tersedia`
       : "Reward Robux belum tersedia";
 
   return (
@@ -72,30 +80,24 @@ export function MapCard({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Chip size="sm" variant="soft">
-              {map.durationDays} hari
-            </Chip>
+            {map.verificationStatus === "VERIFIED" ? (
+              <Badge tone="success" icon={BadgeCheck}>
+                Verified
+              </Badge>
+            ) : (
+              <Badge tone="warning" icon={CircleAlert}>
+                Belum verified
+              </Badge>
+            )}
 
-            <Chip
-              size="sm"
-              color={totalRobux > 0 ? "success" : "default"}
-              variant="soft"
-              className="font-semibold"
+            <Badge icon={CalendarDays}>{map.durationDays} hari</Badge>
+
+            <Badge
+              tone={totalRobux > 0 ? "success" : "neutral"}
+              icon={signedIn ? Target : Coins}
             >
               {robuxLabel}
-            </Chip>
-
-            <Chip
-              size="sm"
-              color={
-                map.verificationStatus === "VERIFIED" ? "success" : "warning"
-              }
-              variant="soft"
-            >
-              {map.verificationStatus === "VERIFIED"
-                ? "✓ Verified"
-                : "Belum verified"}
-            </Chip>
+            </Badge>
           </div>
 
           {map.description && (
