@@ -657,20 +657,20 @@ export function AttendanceClient({
 
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl bg-default-50/70 p-4">
-              <p className="text-xs text-default-500">Target Robux pribadi</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="text-xs text-default-500">Target Robux Pribadi</p>
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {formatNumber(robuxTarget)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
-              <p className="text-xs text-default-500">Sudah terkirim</p>
-              <p className="mt-1 break-words text-xl font-black text-success-600">
+              <p className="text-xs text-default-500">Sudah Terkirim</p>
+              <p className="mt-1 wrap-break-word text-xl font-black text-success-600">
                 {formatNumber(robuxSent)} R$
               </p>
             </div>
             <div className="rounded-2xl bg-default-50/70 p-4">
-              <p className="text-xs text-default-500">Belum terkirim</p>
-              <p className="mt-1 break-words text-xl font-black">
+              <p className="text-xs text-default-500">Belum Terkirim</p>
+              <p className="mt-1 wrap-break-word text-xl font-black">
                 {formatNumber(robuxOutstanding)} R$
               </p>
             </div>
@@ -678,7 +678,7 @@ export function AttendanceClient({
 
           <div className="mt-5">
             <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-              <span className="text-default-500">Progress Robux terkirim</span>
+              <span className="text-default-500">Progress Robux Terkirim</span>
               <strong>{robuxProgress}%</strong>
             </div>
             <div
@@ -703,7 +703,7 @@ export function AttendanceClient({
 
           {tracker.lastAttendanceAt && (
             <p className="mt-4 text-xs text-default-500">
-              Terakhir hadir: {formatDate(tracker.lastAttendanceAt)}
+              Terakhir Hadir: {formatDate(tracker.lastAttendanceAt)}
             </p>
           )}
         </section>
@@ -733,7 +733,7 @@ export function AttendanceClient({
                 key != null && setSelectedDay(String(key))
               }
             >
-              <Label>Hari reward</Label>
+              <Label>Hari Reward</Label>
 
               <Select.Trigger className={selectTriggerClass}>
                 <Select.Value />
@@ -767,7 +767,7 @@ export function AttendanceClient({
                 key != null && setRewardType(String(key) as RewardType)
               }
             >
-              <Label>Jenis reward</Label>
+              <Label>Jenis Reward</Label>
 
               <Select.Trigger className={selectTriggerClass}>
                 <Select.Value />
@@ -792,7 +792,7 @@ export function AttendanceClient({
             </Select>
 
             <TextField value={amount} onChange={setAmount} isRequired>
-              <Label>Nominal reward</Label>
+              <Label>Nominal Reward</Label>
               <Input className={inputClass} type="number" min="0" step="1" />
               <p className="mt-1 text-xs text-[color:var(--text-muted)]">
                 Digunakan untuk Robux atau reward kuantitatif.
@@ -800,7 +800,7 @@ export function AttendanceClient({
             </TextField>
 
             <TextField value={title} onChange={setTitle} isRequired>
-              <Label>Judul reward</Label>
+              <Label>Judul Reward</Label>
               <Input
                 className={inputClass}
                 placeholder="Contoh: Bonus harian"
@@ -888,11 +888,11 @@ export function AttendanceClient({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="break-words font-bold">
+                      <p className="wrap-break-word font-bold">
                         {reward ? rewardLabel(reward) : "Absensi harian"}
                       </p>
 
-                      <p className="mt-1 break-words text-xs text-default-500">
+                      <p className="mt-1 wrap-break-word text-xs text-default-500">
                         {reward
                           ? reward.rewardType === "ROBUX"
                             ? "Milestone Robux pribadi"
@@ -901,7 +901,7 @@ export function AttendanceClient({
                       </p>
 
                       {reward?.description && (
-                        <p className="mt-1 break-words text-xs leading-5 text-default-500">
+                        <p className="mt-1 wrap-break-word text-xs leading-5 text-default-500">
                           {reward.description}
                         </p>
                       )}
@@ -922,7 +922,7 @@ export function AttendanceClient({
                       )}
 
                       {claim && (
-                        <p className="mt-2 break-words text-xs text-default-500">
+                        <p className="mt-2 wrap-break-word text-xs text-default-500">
                           Klaim tercatat: {claim.rewardTitle} ·{" "}
                           {claim.rewardType === "ROBUX"
                             ? `${formatNumber(claim.rewardAmount)} Robux`
