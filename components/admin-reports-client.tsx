@@ -111,7 +111,9 @@ export function AdminReportsClient({ groups }: { groups: ReportGroup[] }) {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="break-words font-black">{group.map.name}</h2>
+                  <h2 className="wrap-break-word font-black">
+                    {group.map.name}
+                  </h2>
                   <Chip size="sm" variant="soft" color="danger">
                     {group.reports.length} laporan
                   </Chip>
@@ -181,7 +183,7 @@ export function AdminReportsClient({ groups }: { groups: ReportGroup[] }) {
                     · {report.reporter} · {formatDate(report.createdAt)}
                   </span>
                   {report.note && (
-                    <p className="mt-0.5 break-words text-[color:var(--text-secondary)]">
+                    <p className="mt-0.5 wrap-break-word text-[color:var(--text-secondary)]">
                       {report.note}
                     </p>
                   )}
