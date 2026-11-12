@@ -215,7 +215,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl bg-default-50/70 p-4">
             <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-              <span className="text-default-500">Progress absensi</span>
+              <span className="text-default-500">Progress Absensi</span>
               <strong>{attendanceProgress}%</strong>
             </div>
             <div className="h-2.5 overflow-hidden rounded-full bg-default-200">
@@ -228,7 +228,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
 
           <div className="rounded-2xl bg-default-50/70 p-4">
             <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-              <span className="text-default-500">Robux terkirim</span>
+              <span className="text-default-500">Robux Terkirim</span>
               <strong>{robuxProgress}%</strong>
             </div>
             <div className="h-2.5 overflow-hidden rounded-full bg-default-200">
@@ -245,8 +245,8 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-default-200 p-3 sm:p-4">
-            <p className="text-xs text-default-500">Belum terkirim</p>
-            <p className="mt-1 break-words text-lg font-black">
+            <p className="text-xs text-default-500">Belum Terkirim</p>
+            <p className="mt-1 wrap-break-word text-lg font-black">
               {formatNumber(outstandingRobux)} R$
             </p>
           </div>
@@ -264,7 +264,7 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
         {tracker.claims.some((claim) => claim.rewardType === "ROBUX") && (
           <div className="space-y-3 border-t border-default-200 pt-4">
             <div>
-              <h4 className="font-bold">Status pengiriman Robux</h4>
+              <h4 className="font-bold">Status Pengiriman Robux</h4>
               <p className="mt-1 text-xs text-default-500">
                 Klik status untuk mengubahnya ke tahap berikutnya.
               </p>
@@ -278,10 +278,10 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
                   className="flex min-w-0 flex-col gap-3 rounded-2xl border border-default-200 p-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
-                    <p className="break-words font-semibold">
+                    <p className="wrap-break-word font-semibold">
                       Day {claim.dayNumber} · {claim.rewardAmount} Robux
                     </p>
-                    <p className="break-words text-sm text-default-500">
+                    <p className="wrap-break-word text-sm text-default-500">
                       {claim.rewardTitle}
                     </p>
                   </div>
@@ -344,8 +344,8 @@ function SubmittedMapCard({ map }: { map: any }) {
       className="flex min-w-0 flex-col gap-3 rounded-2xl border border-default-200 p-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div className="min-w-0">
-        <p className="break-words font-bold">{map.name}</p>
-        <p className="mt-1 break-words text-sm text-default-500">
+        <p className="wrap-break-word font-bold">{map.name}</p>
+        <p className="mt-1 wrap-break-word text-sm text-default-500">
           {map.durationDays} hari · {map.creatorName}
         </p>
       </div>
@@ -373,10 +373,10 @@ export function DashboardClient({
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-500">
             RbxDaily
           </p>
-          <h1 className="mt-2 break-words text-3xl font-black tracking-tight sm:text-4xl">
+          <h1 className="mt-2 wrap-break-word text-3xl font-black tracking-tight sm:text-4xl">
             Dashboard
           </h1>
-          <p className="mt-2 break-words text-sm text-default-500">
+          <p className="mt-2 wrap-break-word text-sm text-default-500">
             Halo, {profile.displayName}
             {profile.username ? ` (@${profile.username})` : ""}. Pantau absensi
             dan status reward kamu di sini.
@@ -386,22 +386,22 @@ export function DashboardClient({
 
       <section className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Map aktif"
+          label="Map Aktif"
           value={String(stats.activeMaps)}
           detail="Tracker yang sedang berjalan"
         />
         <StatCard
-          label="Target Robux pribadi"
+          label="Target Robux Pribadi"
           value={`${formatNumber(stats.targetRobux)} R$`}
           detail="Total konfigurasi reward pribadi"
         />
         <StatCard
-          label="Robux belum terkirim"
+          label="Robux Belum Terkirim"
           value={`${formatNumber(stats.outstandingRobux)} R$`}
           detail={`${stats.pendingMilestones} milestone belum terkirim`}
         />
         <StatCard
-          label="Robux terkirim"
+          label="Robux Terkirim"
           value={`${formatNumber(stats.sentRobux)} R$`}
           detail="Berdasarkan status klaim SENT"
         />
@@ -409,7 +409,7 @@ export function DashboardClient({
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-2xl font-black">Progress map</h2>
+          <h2 className="text-2xl font-black">Progress Map</h2>
           <p className="mt-1 text-sm text-default-500">
             Pantau progress absensi dan pengiriman reward setiap map.
           </p>
@@ -429,7 +429,7 @@ export function DashboardClient({
               progress.
             </p>
             <Link href="/" className={`${linkButton("primary")} mt-4`}>
-              Jelajahi map
+              Jelajahi Map
             </Link>
           </div>
         )}
