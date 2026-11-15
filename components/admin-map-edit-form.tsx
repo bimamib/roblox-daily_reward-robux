@@ -77,7 +77,7 @@ export function AdminMapEditForm({
         <input type="hidden" name="id" value={map.id} />
 
         <TextField name="name" defaultValue={map.name}>
-          <Label>Map name</Label>
+          <Label>Map Name</Label>
           <Input className={inputClass} />
         </TextField>
 
@@ -132,7 +132,7 @@ export function AdminMapEditForm({
 
         <div className="md:col-span-2">
           <Button type="submit" className={skeuoButton("primary")}>
-            Save map
+            Save Map
           </Button>
         </div>
       </form>
@@ -191,7 +191,7 @@ export function AdminMapEditForm({
         })}
 
         <Button type="submit" className={skeuoButton("primary")}>
-          Save rewards
+          Save Rewards
         </Button>
       </form>
     </>
