@@ -82,11 +82,11 @@ export function MapCard({
           <div className="flex flex-wrap gap-2">
             {map.verificationStatus === "VERIFIED" ? (
               <Badge tone="success" icon={BadgeCheck}>
-                Verified
+                Terverifikasi
               </Badge>
             ) : (
               <Badge tone="warning" icon={CircleAlert}>
-                Belum verified
+                Belum Terverifikasi
               </Badge>
             )}
 
@@ -112,7 +112,7 @@ export function MapCard({
             </span>
 
             <span className="shrink-0 text-sm font-bold text-violet-500 transition group-hover:translate-x-0.5">
-              Lihat detail →
+              Lihat Detail →
             </span>
           </div>
         </Card.Content>
