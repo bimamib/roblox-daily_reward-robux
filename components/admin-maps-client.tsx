@@ -282,9 +282,7 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                     ) : (
                       <Eye className="size-4" aria-hidden="true" />
                     )}
-                    {map.status === "ACTIVE"
-                      ? "Belum Diaktifkan"
-                      : "Diaktifkan"}
+                    {map.status === "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}
                   </Button>
                 )}
 
