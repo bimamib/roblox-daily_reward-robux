@@ -203,7 +203,7 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                   >
                     {map.verificationStatus === "VERIFIED"
                       ? "Terverifikasi"
-                      : "Belum verified"}
+                      : "Belum Terverifikasi"}
                   </Chip>
 
                   {map.openReports > 0 && (
@@ -264,7 +264,7 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                   >
                     <BadgeCheck className="size-4" aria-hidden="true" />
                     {map.verificationStatus === "VERIFIED"
-                      ? "Cabut verifikasi"
+                      ? "Cabut Verifikasi"
                       : "Verifikasi"}
                   </Button>
                 )}
@@ -282,7 +282,9 @@ export function AdminMapsClient({ maps }: { maps: MapData[] }) {
                     ) : (
                       <Eye className="size-4" aria-hidden="true" />
                     )}
-                    {map.status === "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}
+                    {map.status === "ACTIVE"
+                      ? "Belum Diaktifkan"
+                      : "Diaktifkan"}
                   </Button>
                 )}
 
