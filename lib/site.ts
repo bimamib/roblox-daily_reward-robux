@@ -24,7 +24,7 @@ export function getSiteUrl(): string {
   const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
   const raw = explicit || vercel;
 
-  if (!raw) return "http://localhost:3000";
+  if (!raw) return "https://roblox-daily-reward-robux.vercel.app/";
 
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 
