@@ -28,7 +28,7 @@ export function AdminMapNewForm({ parents }: { parents: ParentMap[] }) {
   return (
     <form action={createMapAdminAction} className="mt-8 space-y-5">
       <TextField name="name" isRequired>
-        <Label>Map name</Label>
+        <Label>Map Name</Label>
         <Input className={inputClass} />
       </TextField>
 
@@ -76,12 +76,12 @@ export function AdminMapNewForm({ parents }: { parents: ParentMap[] }) {
       </Select>
 
       <TextField name="phaseNumber" defaultValue="1" isRequired>
-        <Label>Phase number</Label>
+        <Label>Phase Number</Label>
         <Input className={inputClass} type="number" />
       </TextField>
 
       <Select name="parentMapId">
-        <Label>Parent phase (optional)</Label>
+        <Label>Parent Phase (optional)</Label>
 
         <Select.Trigger className={selectTriggerClass}>
           <Select.Value />
@@ -113,7 +113,7 @@ export function AdminMapNewForm({ parents }: { parents: ParentMap[] }) {
       </Select>
 
       <Button type="submit" className={skeuoButton("primary")}>
-        Create map
+        Create Map
       </Button>
     </form>
   );
