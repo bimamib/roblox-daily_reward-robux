@@ -32,7 +32,7 @@ export function SubmitMapForm() {
   return (
     <form action={submitMapAction} className="mt-8 space-y-5">
       <TextField name="name" isRequired>
-        <Label>Nama map</Label>
+        <Label>Nama Map</Label>
         <Input className={inputClass} placeholder="Contoh: Arena Login Pass" />
       </TextField>
 
@@ -53,7 +53,7 @@ export function SubmitMapForm() {
       </TextField>
 
       <Select name="durationDays" placeholder="Pilih durasi" isRequired>
-        <Label>Durasi absensi</Label>
+        <Label>Durasi Absensi</Label>
 
         <Select.Trigger className={selectTriggerClass}>
           <Select.Value />
@@ -125,7 +125,7 @@ export function SubmitMapForm() {
         variant="primary"
         className={`${skeuoButton("primary")} w-full`}
       >
-        Tambahkan map
+        Tambahkan Map
       </Button>
     </form>
   );
