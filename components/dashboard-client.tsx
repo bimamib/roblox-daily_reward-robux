@@ -233,7 +233,8 @@ function TrackerCard({ tracker }: { tracker: DashboardTracker }) {
             </div>
             <div className="h-2.5 overflow-hidden rounded-full bg-default-200">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all"
+                // className="h-full rounded-full bg-emerald-500 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-400 transition-all"
                 style={{ width: `${robuxProgress}%` }}
               />
             </div>

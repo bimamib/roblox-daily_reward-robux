@@ -684,13 +684,14 @@ export function AttendanceClient({
             <div
               className="h-3 overflow-hidden rounded-full bg-default-200"
               role="progressbar"
-              aria-label="Progress Robux terkirim"
+              aria-label="Progress Robux Terkirim"
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={robuxProgress}
             >
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all"
+                // className="h-full rounded-full bg-emerald-500 transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-400 transition-all"
                 style={{ width: `${robuxProgress}%` }}
               />
             </div>
