@@ -979,3 +979,34 @@ html.light {
     animation-duration: 0ms !important;
   }
 }
+
+/* =========================================================
+   FOCUS RING SERAGAM — satu aturan untuk semua field
+   Class penanda dipasang di lib/ui.ts.
+   Cincin 2px berjarak 2px; border field tidak berubah.
+   `!important` + tanpa layer agar menang atas ring bawaan HeroUI.
+   ========================================================= */
+
+/* Matikan ring/outline bawaan komponen pada semua keadaan */
+.field-ring,
+.field-ring-within,
+.field-ring-none,
+.field-ring-option {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Satu-satunya cincin fokus: input, trigger Select (saat daftar terbuka),
+   dan kotak pembungkus (textarea, kolom password) */
+.field-ring:focus-visible,
+.field-ring[aria-expanded="true"],
+.field-ring-within:focus-within {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px !important;
+}
+
+/* Pilihan dalam daftar: cincin di sisi dalam agar tidak terpotong daftar */
+.field-ring-option:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: -2px !important;
+}

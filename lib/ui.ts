@@ -62,27 +62,24 @@ export function linkButton(
 /* ------------------------------------------------------------------ */
 
 /**
- * Focus ring SERAGAM untuk semua field (input, select, textarea, kolom password):
- * cincin `outline` 2px berwarna aksen yang berjarak 2px dari field
- * (outline-offset), border field TIDAK berubah. Sama dengan contoh HeroUI.
+ * FOCUS RING SERAGAM
  *
- * Memakai `outline` (bukan ring/box-shadow) agar tidak tertimpa aturan
- * autofill di globals.css, yang memaksa box-shadow pada input hasil autofill.
+ * Cincin fokus (outline 2px, jarak 2px, border field tidak berubah) digambar
+ * SATU kali oleh aturan global di app/globals.css, berdasarkan class penanda:
  *
- * Class ditulis utuh (tidak disusun dari potongan) supaya terbaca oleh Tailwind.
+ *   field-ring         input & trigger Select (fokus keyboard / daftar terbuka)
+ *   field-ring-within  kotak pembungkus (textarea, InputGroup): fokus ada di anak
+ *   field-ring-none    elemen di DALAM kotak pembungkus: tanpa cincin sendiri
+ *   field-ring-option  pilihan dalam daftar (cincin di sisi dalam)
+ *
+ * Kenapa tidak lewat utility Tailwind: HeroUI menggambar ring fokus bawaannya
+ * dengan variabel ring Tailwind di dalam box-shadow. `shadow-none` TIDAK
+ * mereset variabel itu, sehingga ring bawaan (tebal 3px, menempel di border)
+ * tetap muncul. `ring-0 ring-offset-0` di bawah mereset variabelnya, dan
+ * aturan global memastikan hanya satu cincin yang tampil.
  */
-const focusRing =
-  "focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent)]";
 
-/** Untuk kotak pembungkus (textarea, InputGroup): fokus ada di elemen anak. */
-const withinRing =
-  "focus-within:outline-2 focus-within:outline-solid focus-within:outline-offset-2 focus-within:outline-[color:var(--accent)]";
-
-/** Untuk trigger Select saat daftar pilihan terbuka. */
-const openRing =
-  "aria-expanded:outline-2 aria-expanded:outline-solid aria-expanded:outline-offset-2 aria-expanded:outline-[color:var(--accent)]";
-
-const fieldBase = `w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${focusRing}`;
+const fieldBase = `field-ring w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 text-sm text-[color:var(--text)] shadow-none ring-0 ring-offset-0 outline-none transition-colors`;
 
 /** <Input> HeroUI atau <input> biasa. */
 export const inputClass = `h-9 ${fieldBase}`;
@@ -92,7 +89,8 @@ export const inputClass = `h-9 ${fieldBase}`;
  * Kotak luar membawa border, background, dan focus ring (lewat focus-within);
  * <InputGroup.Input> di dalamnya dibuat polos.
  */
-export const inputGroupClass = `flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none outline-none transition-colors ${withinRing}`;
+export const inputGroupClass =
+  "field-ring-within flex h-9 w-full min-w-0 items-center rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] text-sm text-[color:var(--text)] shadow-none ring-0 ring-offset-0 outline-none transition-colors";
 
 /**
  * `rounded-[inherit]` penting: saat password manager mengisi kolom, Chrome
@@ -101,7 +99,7 @@ export const inputGroupClass = `flex h-9 w-full min-w-0 items-center rounded-xl 
  * melengkung di kiri atas/bawah dan menimbulkan garis ganda tipis.
  */
 export const inputGroupInputClass =
-  "h-full min-w-0 flex-1 rounded-[inherit] border-0 bg-transparent px-3 text-sm shadow-none outline-none ring-0";
+  "field-ring-none h-full min-w-0 flex-1 rounded-[inherit] border-0 bg-transparent px-3 text-sm shadow-none ring-0 ring-offset-0 outline-none";
 
 /**
  * <Select.Trigger> HeroUI (tinggi sama dengan input).
@@ -110,7 +108,7 @@ export const inputGroupInputClass =
  * vertikal (items-center, tanpa padding atas-bawah). Tanpa ini, di layar kecil
  * teks nilai bawaan HeroUI (16px) membuat teks turun dari tengah.
  */
-export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 py-0 leading-5 ${openRing} [&_*]:py-0 [&_*]:text-sm [&_*]:leading-5 ${fieldBase}`;
+export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 py-0 leading-5 [&_*]:py-0 [&_*]:text-sm [&_*]:leading-5 ${fieldBase}`;
 
 /**
  * Textarea dibuat dari dua bagian:
@@ -124,10 +122,11 @@ export const selectTriggerClass = `flex h-9 items-center justify-between gap-2 p
  *     <TextArea className={textareaClass} />
  *   </div>
  */
-export const textareaShellClass = `flex w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] p-1 transition-colors ${withinRing}`;
+export const textareaShellClass =
+  "field-ring-within flex w-full min-w-0 rounded-xl border border-[color:var(--input-border)] bg-[color:var(--input-bg)] p-1 ring-0 ring-offset-0 transition-colors";
 
 export const textareaClass =
-  "block min-h-24 w-full min-w-0 resize-y rounded-lg border-0 bg-transparent px-2 py-1.5 text-sm text-[color:var(--text)] shadow-none outline-none ring-0 [&::-webkit-scrollbar-track]:bg-transparent!";
+  "field-ring-none block min-h-24 w-full min-w-0 resize-y rounded-lg border-0 bg-transparent px-2 py-1.5 text-sm text-[color:var(--text)] shadow-none outline-none ring-0 ring-offset-0 [&::-webkit-scrollbar-track]:bg-transparent!";
 
 /** <Select.Popover>, <ListBox>, dan <ListBox.Item>. */
 export const popoverClass = "rounded-xl p-1 shadow-lg";
@@ -137,7 +136,7 @@ export const listBoxClass = "max-h-64 overflow-y-auto outline-none";
  * (offset negatif) karena daftar memotong apa pun yang keluar dari kotaknya.
  */
 export const optionClass =
-  "min-h-9 rounded-lg px-3 text-sm outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--accent)]";
+  "field-ring-option min-h-9 rounded-lg px-3 text-sm outline-none";
 
 /* ------------------------------------------------------------------ */
 /* Kartu                                                               */
