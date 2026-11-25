@@ -93,7 +93,9 @@ export const getMapBySlug = cache(async (slug: string) => {
 
       parentMap: true,
 
+      // Hanya fase yang aktif: tautan ke fase nonaktif akan berujung 404.
       nextPhases: {
+        where: { status: "ACTIVE" },
         orderBy: {
           phaseNumber: "asc",
         },

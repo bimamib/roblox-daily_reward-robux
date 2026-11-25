@@ -29,6 +29,12 @@ export default async function EditMapPage({
     notFound();
   }
 
+  const parents = await prisma.map.findMany({
+    where: { id: { not: id } },
+    select: { id: true, name: true, phaseNumber: true },
+    orderBy: [{ name: "asc" }, { phaseNumber: "asc" }],
+  });
+
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="text-4xl font-black">Edit {map.name}</h1>
@@ -42,7 +48,9 @@ export default async function EditMapPage({
           durationDays: map.durationDays,
           phaseNumber: map.phaseNumber,
           resetMode: map.resetMode,
+          parentMapId: map.parentMapId,
         }}
+        parents={parents}
         rewards={map.rewards.map((reward) => ({
           id: reward.id,
           dayNumber: reward.dayNumber,

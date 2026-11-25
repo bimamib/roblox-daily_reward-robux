@@ -34,7 +34,10 @@ type AdminMapEditFormProps = {
     durationDays: number;
     phaseNumber: number;
     resetMode: string;
+    parentMapId: string | null;
   };
+  /** Map lain yang bisa dipilih sebagai fase sebelumnya. */
+  parents: { id: string; name: string; phaseNumber: number }[];
   rewards: Reward[];
   updateMapAdminAction: (formData: FormData) => Promise<void>;
   saveRewardsAction: (
@@ -55,6 +58,7 @@ type AdminMapEditFormProps = {
  */
 export function AdminMapEditForm({
   map,
+  parents,
   rewards,
   updateMapAdminAction,
   saveRewardsAction,
@@ -100,6 +104,48 @@ export function AdminMapEditForm({
           <Label>Phase</Label>
           <Input className={inputClass} type="number" />
         </TextField>
+
+        <Select
+          name="parentMapId"
+          defaultSelectedKey={map.parentMapId ?? "none"}
+          className="md:col-span-2"
+        >
+          <Label>Fase sebelumnya (parent phase)</Label>
+
+          <Select.Trigger className={selectTriggerClass}>
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+
+          <Select.Popover className={popoverClass}>
+            <ListBox className={listBoxClass}>
+              <ListBox.Item
+                id="none"
+                textValue="Tidak ada (ini fase pertama)"
+                className={optionClass}
+              >
+                Tidak ada (ini fase pertama)
+              </ListBox.Item>
+
+              {parents.map((parent) => (
+                <ListBox.Item
+                  key={parent.id}
+                  id={parent.id}
+                  textValue={`Fase ${parent.phaseNumber}: ${parent.name}`}
+                  className={optionClass}
+                >
+                  Fase {parent.phaseNumber}: {parent.name}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+            Mengubah angka &ldquo;Phase&rdquo; saja hanya mengganti label. Agar
+            muncul tombol &ldquo;Lanjut ke Fase&rdquo; di map sebelumnya, pilih
+            map fase sebelumnya di sini.
+          </p>
+        </Select>
 
         <Select
           name="resetMode"

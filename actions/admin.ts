@@ -62,6 +62,7 @@ export async function updateMapAdminAction(formData: FormData) {
   const durationDays = Number(formData.get("durationDays"));
   const phaseNumber = Number(formData.get("phaseNumber"));
   const resetMode = String(formData.get("resetMode") || "");
+  const rawParent = String(formData.get("parentMapId") || "none");
   if (
     !id ||
     !name ||
@@ -73,6 +74,38 @@ export async function updateMapAdminAction(formData: FormData) {
     !isResetMode(resetMode)
   )
     throw new Error("Data map tidak valid.");
+
+  // Parent phase: map ini menjadi fase lanjutan dari map yang dipilih.
+  let parentMapId: string | null = null;
+
+  if (rawParent !== "none") {
+    if (rawParent === id) {
+      throw new Error("Map tidak bisa menjadi fase dari dirinya sendiri.");
+    }
+
+    // Telusuri rantai induk calon parent; tidak boleh bertemu map ini
+    // (jika ya, rantai fase akan berputar).
+    let cursor: string | null = rawParent;
+
+    for (let depth = 0; cursor && depth < 20; depth++) {
+      if (cursor === id) {
+        throw new Error("Pilihan parent membuat rantai fase berputar.");
+      }
+
+      const node: { parentMapId: string | null } | null =
+        await prisma.map.findUnique({
+          where: { id: cursor },
+          select: { parentMapId: true },
+        });
+
+      if (!node) throw new Error("Parent phase tidak ditemukan.");
+
+      cursor = node.parentMapId;
+    }
+
+    parentMapId = rawParent;
+  }
+
   await prisma.map.update({
     where: { id },
     data: {
@@ -82,6 +115,7 @@ export async function updateMapAdminAction(formData: FormData) {
       durationDays,
       phaseNumber,
       resetMode,
+      parentMapId,
     },
   });
   revalidatePath("/");
