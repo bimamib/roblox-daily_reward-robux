@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  ArrowLeft,
+  ArrowRight,
   ChevronLeft,
   BadgeCheck,
   CalendarDays,
@@ -12,6 +14,7 @@ import { prisma } from "@/lib/prisma";
 import { getMapBySlug } from "@/lib/maps/queries";
 import { linkButton } from "@/lib/ui";
 import { buildMetadata } from "@/lib/site";
+import { Badge } from "@/components/badge";
 import { DEFAULT_TIME_ZONE, describeReset } from "@/lib/attendance/rules";
 import { AttendanceClient } from "@/components/attendance-client";
 import { ReportMapButton } from "@/components/report-map-button";
@@ -143,25 +146,22 @@ export default async function MapDetailPage({
 
       <section className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-7">
         <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden map-detail-cover rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white sm:min-h-64 sm:p-7">
-          {/* Lencana berlatar kaca gelap: terbaca jelas di seluruh gradien banner
-              (kontras minimal 7:1), tanpa bergantung pada warna ungu di belakangnya. */}
+          {/* Lencana kaca gelap: terbaca jelas di seluruh gradien banner
+              (kontras minimal 7:1), apa pun tema aplikasinya. */}
           <div className="relative flex flex-wrap gap-2">
             {map.verificationStatus === "VERIFIED" ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/40 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-emerald-300 shadow-sm backdrop-blur-sm">
-                <BadgeCheck className="size-4 shrink-0" aria-hidden="true" />
+              <Badge tone="success" icon={BadgeCheck} onDark>
                 Verified
-              </span>
+              </Badge>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-amber-300 shadow-sm backdrop-blur-sm">
-                <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
+              <Badge tone="warning" icon={CircleAlert} onDark>
                 Belum verified
-              </span>
+              </Badge>
             )}
 
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/35 px-3 py-1.5 text-xs font-semibold leading-none text-white shadow-sm backdrop-blur-sm">
-              <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+            <Badge icon={CalendarDays} onDark>
               {map.durationDays} hari
-            </span>
+            </Badge>
           </div>
 
           <div className="relative mt-8">
@@ -193,6 +193,17 @@ export default async function MapDetailPage({
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">
             Reset reward: {describeReset(map.resetMode, timeZone)}
           </p>
+
+          {map.parentMap && map.parentMap.status === "ACTIVE" && (
+            <p className="mt-1 text-xs">
+              <Link
+                href={`/maps/${map.parentMap.slug}`}
+                className="font-semibold text-violet-500 hover:underline"
+              >
+                ← Fase {map.parentMap.phaseNumber}: {map.parentMap.name}
+              </Link>
+            </p>
+          )}
 
           {user && (
             <div className="mt-4">
@@ -277,6 +288,27 @@ export default async function MapDetailPage({
           </p>
         </div>
 
+        {/* Fase ini sudah selesai -> arahkan ke fase berikutnya. */}
+        {tracker?.status === "COMPLETED" && map.nextPhases.length > 0 && (
+          <div className="mb-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4">
+            <p className="font-bold">
+              Fase {map.phaseNumber} selesai! Lanjutkan ke fase berikutnya.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {map.nextPhases.map((phase) => (
+                <Link
+                  key={phase.id}
+                  href={`/maps/${phase.slug}`}
+                  className={linkButton("primary", "sm")}
+                >
+                  Lanjut ke Fase {phase.phaseNumber}
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {user ? (
           <AttendanceClient
             map={{
@@ -312,12 +344,14 @@ export default async function MapDetailPage({
           <h2 className="text-xl font-black">Fase selanjutnya</h2>
           <div className="mt-4 flex flex-wrap gap-3">
             {map.nextPhases.map((phase) => (
-              <span
+              <Link
                 key={phase.id}
-                className="rounded-full border border-default-200 px-4 py-2 text-sm font-semibold"
+                href={`/maps/${phase.slug}`}
+                className={linkButton("secondary")}
               >
-                Fase {phase.phaseNumber}
-              </span>
+                Fase {phase.phaseNumber}: {phase.name}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
             ))}
           </div>
         </section>
