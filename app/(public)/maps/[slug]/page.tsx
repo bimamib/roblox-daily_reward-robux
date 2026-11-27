@@ -228,14 +228,14 @@ export default async function MapDetailPage({
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
-              <p className="text-xs text-default-500">Robux terkirim</p>
+              <p className="text-xs text-default-500">Robux Terkirim</p>
               <p className="mt-1 wrap-break-word text-xl font-black">
                 {robuxSent.toLocaleString("id-ID")} R$
               </p>
             </div>
 
             <div className="rounded-2xl border border-default-200 bg-default-50/60 p-4">
-              <p className="text-xs text-default-500">Belum terkirim</p>
+              <p className="text-xs text-default-500">Belum Terkirim</p>
               <p className="mt-1 wrap-break-word text-xl font-black">
                 {robuxPending.toLocaleString("id-ID")} R$
               </p>
@@ -244,7 +244,7 @@ export default async function MapDetailPage({
 
           <div className="mt-5">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm">
-              <span className="font-semibold">Progress Robux terkirim</span>
+              <span className="font-semibold">Progress Robux Terkirim</span>
               <span className="font-bold">{robuxProgress}%</span>
             </div>
             <div
