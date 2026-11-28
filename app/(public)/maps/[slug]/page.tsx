@@ -145,7 +145,7 @@ export default async function MapDetailPage({
       </Link>
 
       <section className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] lg:gap-7">
-        <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden map-detail-cover rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white sm:min-h-64 sm:p-7">
+        <div className="relative flex min-h-52 min-w-0 flex-col justify-between overflow-hidden map-detail-cover rounded-3xl border border-white/10 bg-linear-to-br from-violet-950 via-violet-700 to-indigo-950 p-5 text-white sm:min-h-64 sm:p-7">
           {/* Lencana kaca gelap: terbaca jelas di seluruh gradien banner
               (kontras minimal 7:1), apa pun tema aplikasinya. */}
           <div className="relative flex flex-wrap gap-2">
@@ -190,7 +190,7 @@ export default async function MapDetailPage({
             Dibuat oleh {map.creatorName}
           </p>
 
-          <p className="mt-1 text-xs text-[color:var(--text-muted)]">
+          <p className="mt-1 text-xs text-(--text-muted)">
             Reset reward: {describeReset(map.resetMode, timeZone)}
           </p>
 
@@ -256,7 +256,7 @@ export default async function MapDetailPage({
               aria-valuenow={robuxProgress}
             >
               <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-emerald-400 transition-all"
+                className="h-full rounded-full bg-linear-to-r from-violet-500 to-emerald-400 transition-all"
                 style={{ width: `${robuxProgress}%` }}
               />
             </div>
@@ -277,10 +277,10 @@ export default async function MapDetailPage({
       <section className="mt-8 min-w-0">
         <div className="mb-4">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-500">
-            Attendance tracker
+            Attendance Tracker
           </p>
           <h2 className="mt-1 text-2xl font-black sm:text-3xl">
-            Absensi harian
+            Absensi Harian
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-default-500">
             Atur reward pribadi, lakukan check-in sesuai urutan hari, dan
